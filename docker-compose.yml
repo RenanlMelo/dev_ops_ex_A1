@@ -10,6 +10,7 @@ services:
       SERVER_PORT: ${SERVER_PORT:-8080}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:h2:file:./data/demodb;AUTO_SERVER=TRUE}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:-org.h2.Driver}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-sa}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
@@ -17,5 +18,37 @@ services:
     volumes:
       - dev-ops-ac1-data:/app/data
 
+  postgres:
+    image: postgres:16-alpine
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: devopsac1
+      POSTGRES_USER: devopsac1
+      POSTGRES_PASSWORD: devopsac1
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev-ops-ac1-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devopsac1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    platform: linux/amd64
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - dev-ops-ac1-pgadmin-data:/var/lib/pgadmin
+
 volumes:
   dev-ops-ac1-data:
+  dev-ops-ac1-postgres-data:
+  dev-ops-ac1-pgadmin-data:

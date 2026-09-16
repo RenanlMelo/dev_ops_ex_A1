@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { background: #1e1e1e; margin: 0; padding: 24px; font-family: 'Consolas', 'Cascadia Code', monospace; }
+  .title { color: #d4d4d4; font-size: 15px; margin-bottom: 14px; }
+  .title b { color: #4ec9b0; }
+  pre { color: #cccccc; font-size: 13px; line-height: 1.55; white-space: pre-wrap; margin: 0; }
+  .err { color: #f14c4c; }
+  .hdr { color: #f14c4c; font-weight: bold; }
+  .code { color: #9cdcfe; }
+</style>
+</head>
+<body>
+<div class="title">RED &mdash; <b>EnrollmentTest</b> (<code>mvnw test -Dtest=EnrollmentTest</code>)</div>
+<pre><span class="hdr">[ERROR] Tests run: 7, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 0.181 s &lt;&lt;&lt; FAILURE! -- in com.example.devopsac1.Test.EnrollmentTest</span>
+
+<span class="err">[ERROR] com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold -- Time elapsed: 0.019 s &lt;&lt;&lt; FAILURE!
+org.opentest4j.AssertionFailedError: expected: &lt;false&gt; but was: &lt;true&gt;
+	at com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold(EnrollmentTest.java:50)</span>
+
+<span class="err">[ERROR] com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.NullPointerException: Cannot invoke "java.lang.Double.doubleValue()" because "this.grade" is null
+	at com.example.devopsac1.Domain.Enrollment.hasGradeAboveMinimum(Enrollment.java:66)
+	at com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted(EnrollmentTest.java:62)</span>
+
+<span class="hdr">[ERROR] Failures:
+[ERROR]   EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold:50 expected: &lt;false&gt; but was: &lt;true&gt;
+[ERROR] Errors:
+[ERROR]   EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted:62 NullPointerException: this.grade is null
+[ERROR] Tests run: 7, Failures: 1, Errors: 1, Skipped: 0</span>
+
+<span class="code">// Implementacao RED (Enrollment.java):
+public boolean hasGradeAboveMinimum() {
+    return grade &gt;= MINIMUM_GRADE_FOR_EXTRA_COURSES;
+}
+// Bug: ">=" ao inves de ">" (limite errado), e nao trata completed/grade nulos.</span></pre>
+</body>
+</html>

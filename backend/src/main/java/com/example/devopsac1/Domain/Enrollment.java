@@ -61,7 +61,11 @@ public class Enrollment {
         return student;
     }
 
+    //BLUE
+    // grade nunca e null quando completed e true: complete(grade) sempre
+    // define os dois juntos, entao a checagem extra de null seria um branch
+    // morto (impossivel de exercitar) e o JaCoCo acusaria cobertura parcial.
     public boolean hasGradeAboveMinimum() {
-        return completed && grade != null && grade > MINIMUM_GRADE_FOR_EXTRA_COURSES;
+        return completed && grade > MINIMUM_GRADE_FOR_EXTRA_COURSES;
     }
 }

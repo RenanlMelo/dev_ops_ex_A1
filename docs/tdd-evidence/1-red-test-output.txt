@@ -1,0 +1,32 @@
+[ERROR] Tests run: 7, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 0.181 s <<< FAILURE! -- in com.example.devopsac1.Test.EnrollmentTest
+[ERROR] com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold -- Time elapsed: 0.019 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:35)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:246)
+	at com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold(EnrollmentTest.java:50)
+
+[ERROR] com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted -- Time elapsed: 0.001 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "java.lang.Double.doubleValue()" because "this.grade" is null
+	at com.example.devopsac1.Domain.Enrollment.hasGradeAboveMinimum(Enrollment.java:66)
+	at com.example.devopsac1.Test.EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted(EnrollmentTest.java:62)
+
+[ERROR] Failures: 
+[ERROR]   EnrollmentTest.hasGradeAboveMinimumIsFalseAtThreshold:50 expected: <false> but was: <true>
+[ERROR] Errors: 
+[ERROR]   EnrollmentTest.hasGradeAboveMinimumIsFalseWhenNotCompleted:62 » NullPointer Cannot invoke "java.lang.Double.doubleValue()" because "this.grade" is null
+[ERROR] Tests run: 7, Failures: 1, Errors: 1, Skipped: 0
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project dev_ops_ac1: There are test failures.
+[ERROR] 
+[ERROR] See C:\Users\Renan\Downloads\demo (1)\demo\backend\target\surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
