@@ -2,7 +2,7 @@ name: dev_ops_ac1
 
 services:
   app:
-    build: .
+    build: ./backend
     image: dev_ops_ac1:latest
     ports:
       - "${SERVER_PORT:-8080}:8080"

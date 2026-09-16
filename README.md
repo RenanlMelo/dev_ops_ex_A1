@@ -2,21 +2,44 @@
 
 [![CI](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml/badge.svg)](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml)
 
-API de matricula em cursos (Spring Boot + JPA + H2), usada como exercicio de DevOps.
+API de matricula em cursos (Spring Boot + JPA + H2) com um front-end Vue, usada como exercicio de DevOps.
+
+## Estrutura
+
+```
+backend/    API Spring Boot (Java 24, JPA, H2)
+frontend/   SPA Vue 3 + Vite que consome a API
+```
 
 ## Rodando localmente
 
+Backend:
+
 ```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 
 H2 console em `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:file:./data/demodb`, user `sa`, senha em branco).
+
+Frontend (em outro terminal, com o backend rodando):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre em `http://localhost:5173`. O Vite faz proxy de `/api/*` para `http://localhost:8080/*` (veja
+`frontend/vite.config.js`), entao o front chama a API real sem precisar de CORS no backend.
 
 ## Rodando com Docker
 
 ```bash
 docker compose up --build
 ```
+
+Sobe só o backend (porta 8080). O frontend ainda roda via `npm run dev` durante o desenvolvimento.
 
 ## API
 
@@ -50,8 +73,9 @@ de 0-10).
 
 ## Configuracao
 
-Todas as configs relevantes podem ser sobrescritas por variavel de ambiente - veja [.env.example](.env.example).
-Por padrao (perfil `dev`, sem `SPRING_PROFILES_ACTIVE` definido), a aplicacao sobe com:
+Todas as configs relevantes do backend podem ser sobrescritas por variavel de ambiente - veja
+[.env.example](.env.example). Por padrao (perfil `dev`, sem `SPRING_PROFILES_ACTIVE` definido), a aplicacao sobe
+com:
 
 - console do H2 acessivel em `/h2-console` (login `sa`, sem senha)
 - log de SQL habilitado
@@ -63,11 +87,12 @@ desligar o console do H2 e o log de SQL, defina explicitamente:
 SPRING_PROFILES_ACTIVE=prod
 ```
 
-(veja `src/main/resources/application-prod.properties`). O `docker-compose.yml` nao ativa esse perfil por padrao -
-e preciso setar a variavel de ambiente manualmente (via `.env` ou `-e` no `docker run`).
+(veja `backend/src/main/resources/application-prod.properties`). O `docker-compose.yml` nao ativa esse perfil por
+padrao - e preciso setar a variavel de ambiente manualmente (via `.env` ou `-e` no `docker run`).
 
 ## Testes
 
 ```bash
+cd backend
 ./mvnw test
 ```
