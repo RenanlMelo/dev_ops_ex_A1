@@ -1,5 +1,7 @@
 # dev_ops_ac1
 
+[![CI](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml/badge.svg)](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml)
+
 API de matricula em cursos (Spring Boot + JPA + H2), usada como exercicio de DevOps.
 
 ## Rodando localmente
