@@ -1,7 +1,9 @@
 package com.example.devopsac1.Service;
 
 import com.example.devopsac1.Domain.Enrollment;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CourseService {
 
     public void completeCourse(Enrollment enrollment, double grade) {
