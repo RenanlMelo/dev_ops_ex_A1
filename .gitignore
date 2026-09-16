@@ -4,6 +4,14 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### H2 database files ###
+data/
+*.mv.db
+*.trace.db
+
+### Local environment overrides ###
+.env
+
 ### STS ###
 .apt_generated
 .classpath

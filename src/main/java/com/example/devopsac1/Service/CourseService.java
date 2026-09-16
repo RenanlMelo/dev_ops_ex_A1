@@ -1,6 +1,6 @@
-package com.example.demo.Service;
+package com.example.devopsac1.Service;
 
-import com.example.demo.Model.Enrollment;
+import com.example.devopsac1.Domain.Enrollment;
 
 public class CourseService {
 
