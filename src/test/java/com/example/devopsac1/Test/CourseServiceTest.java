@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -76,14 +77,22 @@ public class CourseServiceTest {
     // Dado um curso e Roberto, um Participante valido
     // Enquanto o curso nao for concluido
     // Entao o usuario nao tera acesso a sua media do curso
+    @DisplayName("Roberto: curso nao concluido impede o acesso a media")
     @Test
     public void roberto_courseNotCompleted_hasNoAccessToAverage() {
+        // Dado um curso e um participante valido, sem conclusao do curso
         Enrollment enrollment = enrollmentFor("Roberto");
+        assertFalse(enrollment.isCompleted());
+        assertNull(enrollment.getGrade());
 
+        // Quando tentar consultar a media, entao o acesso deve ser recusado
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> courseService.getAverage(enrollment));
 
-        assertTrue(exception.getMessage().contains("completed"));
+        assertEquals("Average unavailable: the course has not been completed yet.",
+                exception.getMessage());
+        assertFalse(enrollment.isCompleted());
+        assertNull(enrollment.getGrade());
     }
 
     // BDD implicito: quando o curso for finalizado, a matricula fica
@@ -100,13 +109,15 @@ public class CourseServiceTest {
 
     // BDD complementar ao cenario do Roberto: uma vez o curso concluido,
     // o usuario passa a ter acesso a sua media.
-    @Test
-    public void completedCourse_hasAccessToAverage() {
+    @DisplayName("Roberto: apos concluir o curso, a media fica disponivel para qualquer nota valida")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0, 6.99, 7.0, 8.5, 10.0})
+    public void completedCourse_hasAccessToAverage(double grade) {
         Enrollment enrollment = enrollmentFor("Roberto");
 
-        courseService.completeCourse(enrollment, 7.5);
+        courseService.completeCourse(enrollment, grade);
 
-        assertEquals(7.5, courseService.getAverage(enrollment), 0.0001);
+        assertCompletedWithAverage(enrollment, grade);
     }
 
     private void assertCompletedWithAverage(Enrollment enrollment, double expectedGrade) {
