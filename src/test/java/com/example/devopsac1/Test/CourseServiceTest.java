@@ -32,8 +32,7 @@ public class CourseServiceTest {
         courseService.completeCourse(enrollment, grade);
 
         // Entao
-        assertTrue(enrollment.isCompleted());
-        assertEquals(grade, courseService.getAverage(enrollment), 0.0001);
+        assertCompletedWithAverage(enrollment, grade);
         assertTrue(courseService.isEligibleForExtraCourses(enrollment));
     }
 
@@ -59,12 +58,18 @@ public class CourseServiceTest {
     // Dado um curso e Renan, um Participante valido
     // Quando o curso for finalizado E a nota for abaixo de 7,0
     // Entao o usuario nao tera direito a realizacao de mais 3 cursos
-    @Test
-    public void renan_gradeBelow7_isNotEligibleForExtraCourses() {
+    @DisplayName("Renan: media abaixo de 7 reprova e nao permite cursos extras")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0, 5.0, 6.5, 6.99})
+    public void renan_gradeBelow7_isNotEligibleForExtraCourses(double grade) {
+        // Dado um curso e um participante valido
         Enrollment enrollment = enrollmentFor("Renan");
 
-        courseService.completeCourse(enrollment, 6.5);
+        // Quando o curso for concluido com media abaixo de 7
+        courseService.completeCourse(enrollment, grade);
 
+        // Entao a media fica disponivel, mas nao ha direito a cursos extras
+        assertCompletedWithAverage(enrollment, grade);
         assertFalse(courseService.isEligibleForExtraCourses(enrollment));
     }
 
@@ -103,6 +108,12 @@ public class CourseServiceTest {
 
         assertEquals(7.5, courseService.getAverage(enrollment), 0.0001);
     }
+
+    private void assertCompletedWithAverage(Enrollment enrollment, double expectedGrade) {
+        assertTrue(enrollment.isCompleted());
+        assertEquals(expectedGrade, courseService.getAverage(enrollment), 0.0001);
+    }
+
     private Enrollment enrollmentFor(String studentName) {
         return new Enrollment(new Course("Advanced Java"), new Student(studentName));
     }
