@@ -15,10 +15,14 @@ public class CourseService {
     }
 
     public double getAverage(Enrollment enrollment) {
+        requireCompletedCourse(enrollment);
+        return enrollment.getGrade();
+    }
+
+    private void requireCompletedCourse(Enrollment enrollment) {
         if (!enrollment.isCompleted()) {
             throw new IllegalStateException(
                     "Average unavailable: the course has not been completed yet.");
         }
-        return enrollment.getGrade();
     }
 }
