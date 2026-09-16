@@ -5,6 +5,9 @@ import com.example.devopsac1.Domain.Enrollment;
 import com.example.devopsac1.Domain.Student;
 import com.example.devopsac1.Service.CourseService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,28 +21,55 @@ public class CourseServiceTest {
     // Dado um curso e Kevin, um Participante valido
     // Quando o curso for finalizado E a nota for acima de 7,0
     // Entao o usuario tem direito a realizacao de mais 3 cursos
-    @Test
-    public void kevin_gradeAbove7_isEligibleForExtraCourses() {
-        Course course = new Course("Advanced Java");
-        Student kevin = new Student("Kevin");
-        Enrollment enrollment = new Enrollment(course, kevin);
+    @DisplayName("Kevin: curso concluido com media acima de 7 permite cursos extras")
+    @ParameterizedTest
+    @ValueSource(doubles = {7.01, 8.5, 10.0})
+    public void kevin_gradeAbove7_isEligibleForExtraCourses(double grade) {
+        // Dado
+        Enrollment enrollment = enrollmentFor("Kevin");
 
-        courseService.completeCourse(enrollment, 8.5);
+        // Quando
+        courseService.completeCourse(enrollment, grade);
 
+        // Entao
+        assertCompletedWithAverage(enrollment, grade);
         assertTrue(courseService.isEligibleForExtraCourses(enrollment));
+    }
+
+    @DisplayName("Kevin: media igual a 7 nao satisfaz a regra acima de 7")
+    @Test
+    public void kevin_gradeExactly7_isNotEligibleForExtraCourses() {
+        Enrollment enrollment = enrollmentFor("Kevin");
+
+        courseService.completeCourse(enrollment, 7.0);
+
+        assertEquals(7.0, courseService.getAverage(enrollment), 0.0001);
+        assertFalse(courseService.isEligibleForExtraCourses(enrollment));
+    }
+
+    @DisplayName("Kevin: curso ainda nao concluido nao permite cursos extras")
+    @Test
+    public void kevin_courseNotCompleted_isNotEligibleForExtraCourses() {
+        Enrollment enrollment = enrollmentFor("Kevin");
+
+        assertFalse(courseService.isEligibleForExtraCourses(enrollment));
     }
 
     // Dado um curso e Renan, um Participante valido
     // Quando o curso for finalizado E a nota for abaixo de 7,0
     // Entao o usuario nao tera direito a realizacao de mais 3 cursos
-    @Test
-    public void renan_gradeBelow7_isNotEligibleForExtraCourses() {
-        Course course = new Course("Advanced Java");
-        Student renan = new Student("Renan");
-        Enrollment enrollment = new Enrollment(course, renan);
+    @DisplayName("Renan: media abaixo de 7 reprova e nao permite cursos extras")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0, 5.0, 6.5, 6.99})
+    public void renan_gradeBelow7_isNotEligibleForExtraCourses(double grade) {
+        // Dado um curso e um participante valido
+        Enrollment enrollment = enrollmentFor("Renan");
 
-        courseService.completeCourse(enrollment, 6.5);
+        // Quando o curso for concluido com media abaixo de 7
+        courseService.completeCourse(enrollment, grade);
 
+        // Entao a media fica disponivel, mas nao ha direito a cursos extras
+        assertCompletedWithAverage(enrollment, grade);
         assertFalse(courseService.isEligibleForExtraCourses(enrollment));
     }
 
@@ -48,9 +78,7 @@ public class CourseServiceTest {
     // Entao o usuario nao tera acesso a sua media do curso
     @Test
     public void roberto_courseNotCompleted_hasNoAccessToAverage() {
-        Course course = new Course("Advanced Java");
-        Student roberto = new Student("Roberto");
-        Enrollment enrollment = new Enrollment(course, roberto);
+        Enrollment enrollment = enrollmentFor("Roberto");
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> courseService.getAverage(enrollment));
@@ -62,9 +90,7 @@ public class CourseServiceTest {
     // concluida com a nota informada (pre-condicao usada por Kevin e Renan).
     @Test
     public void completingCourse_marksEnrollmentCompletedWithGrade() {
-        Course course = new Course("Advanced Java");
-        Student student = new Student("Kevin");
-        Enrollment enrollment = new Enrollment(course, student);
+        Enrollment enrollment = enrollmentFor("Kevin");
 
         courseService.completeCourse(enrollment, 9.0);
 
@@ -76,12 +102,19 @@ public class CourseServiceTest {
     // o usuario passa a ter acesso a sua media.
     @Test
     public void completedCourse_hasAccessToAverage() {
-        Course course = new Course("Advanced Java");
-        Student student = new Student("Roberto");
-        Enrollment enrollment = new Enrollment(course, student);
+        Enrollment enrollment = enrollmentFor("Roberto");
 
         courseService.completeCourse(enrollment, 7.5);
 
         assertEquals(7.5, courseService.getAverage(enrollment), 0.0001);
+    }
+
+    private void assertCompletedWithAverage(Enrollment enrollment, double expectedGrade) {
+        assertTrue(enrollment.isCompleted());
+        assertEquals(expectedGrade, courseService.getAverage(enrollment), 0.0001);
+    }
+
+    private Enrollment enrollmentFor(String studentName) {
+        return new Enrollment(new Course("Advanced Java"), new Student(studentName));
     }
 }
