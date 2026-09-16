@@ -8,7 +8,9 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null)
-    throw new Error(body?.message || `Request failed with status ${response.status}`)
+    const error = new Error(body?.message || `Request failed with status ${response.status}`)
+    error.status = response.status
+    throw error
   }
 
   if (response.status === 204) return null

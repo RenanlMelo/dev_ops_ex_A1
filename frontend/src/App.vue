@@ -8,9 +8,39 @@ const course = reactive({
   grade: null
 })
 
-// IDs criados na API na primeira resposta; reaproveitados nas tentativas seguintes.
-const enrollmentId = ref(null)
-const studentId = ref(null)
+// IDs criados na API na primeira resposta; reaproveitados nas tentativas
+// seguintes e entre recarregamentos de pagina (localStorage), pra nao criar
+// aluno/curso duplicados a cada reload.
+const STORAGE_KEY = 'devopsac1-enrollment'
+
+function loadStoredEnrollment() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+function persistEnrollment(ids) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
+  } catch {
+    // localStorage indisponivel (ex: navegacao privada) - segue sem persistir
+  }
+}
+
+function clearStoredEnrollment() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // ignora
+  }
+}
+
+const stored = loadStoredEnrollment()
+const enrollmentId = ref(stored.enrollmentId ?? null)
+const studentId = ref(stored.studentId ?? null)
 const isEligibleForExtraCourses = ref(false)
 const submitting = ref(false)
 const submitError = ref(null)
@@ -93,6 +123,16 @@ function startQuiz() {
   answered.value = false
 }
 
+async function ensureEnrollment() {
+  const student = await createStudent('Aluno Demo')
+  const createdCourse = await createCourse(course.name)
+  const enrollment = await createEnrollment(createdCourse.id, student.id)
+
+  studentId.value = student.id
+  enrollmentId.value = enrollment.id
+  persistEnrollment({ enrollmentId: enrollment.id, studentId: student.id })
+}
+
 async function confirmAnswer() {
   if (selectedOption.value === null || submitting.value) return
 
@@ -104,15 +144,28 @@ async function confirmAnswer() {
 
   try {
     if (!enrollmentId.value) {
-      const student = await createStudent('Aluno Demo')
-      const createdCourse = await createCourse(course.name)
-      const enrollment = await createEnrollment(createdCourse.id, student.id)
-      studentId.value = student.id
-      enrollmentId.value = enrollment.id
+      await ensureEnrollment()
     }
 
-    const completed = await completeEnrollment(enrollmentId.value, grade)
-    const eligibility = await getEligibility(studentId.value)
+    let completed
+    let eligibility
+    try {
+      completed = await completeEnrollment(enrollmentId.value, grade)
+      eligibility = await getEligibility(studentId.value)
+    } catch (error) {
+      // IDs salvos de uma sessao anterior nao existem mais (ex: banco foi
+      // resetado) - descarta e cria matricula nova antes de desistir.
+      if (error.status === 404) {
+        clearStoredEnrollment()
+        enrollmentId.value = null
+        studentId.value = null
+        await ensureEnrollment()
+        completed = await completeEnrollment(enrollmentId.value, grade)
+        eligibility = await getEligibility(studentId.value)
+      } else {
+        throw error
+      }
+    }
 
     answered.value = true
     course.completed = completed.completed
