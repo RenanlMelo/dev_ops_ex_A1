@@ -52,7 +52,7 @@ Config/       Configuracao do Swagger/OpenAPI
 
 Aplicado em [Enrollment.hasGradeAboveMinimum()](backend/src/main/java/com/example/devopsac1/Domain/Enrollment.java),
 testado diretamente por
-[EnrollmentTest](backend/src/test/java/com/example/devopsac1/Test/EnrollmentTest.java) (teste de dominio, no
+[EnrollmentTest](backend/src/test/java/com/example/devopsac1/DomainTest/EnrollmentTest.java) (pacote DomainTest, teste de dominio, no
 mesmo estilo do exercicio da calculadora - sem passar por Spring, so instancia a classe e chama o metodo).
 Evidencias completas (saida de teste + relatorio HTML do JaCoCo) em [docs/tdd-evidence/](docs/tdd-evidence/):
 

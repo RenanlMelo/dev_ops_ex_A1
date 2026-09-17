@@ -1,4 +1,4 @@
-package com.example.devopsac1.Test;
+package com.example.devopsac1.DomainTest;
 
 import com.example.devopsac1.Domain.Course;
 import com.example.devopsac1.Domain.Enrollment;
