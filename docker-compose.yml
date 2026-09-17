@@ -18,6 +18,14 @@ services:
     volumes:
       - dev-ops-ac1-data:/app/data
 
+  frontend:
+    build: ./frontend
+    platform: linux/amd64
+    ports:
+      - "${FRONTEND_PORT:-8082}:80"
+    depends_on:
+      - app
+
   postgres:
     image: postgres:16-alpine
     platform: linux/amd64

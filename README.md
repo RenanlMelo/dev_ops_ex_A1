@@ -99,13 +99,18 @@ Abre em `http://localhost:5173`. O Vite faz proxy de `/api/*` para `http://local
 docker compose up --build
 ```
 
-Sobe 3 containers:
+Sobe 4 containers separados (um pro banco, um pro backend, um pro frontend, um pro admin do banco):
 
 | Servico | Porta | Descricao |
 |---|---|---|
 | app | 8080 | API Spring Boot (H2 por padrao) |
+| frontend | 8082 | Frontend Vue compilado, servido por Nginx (proxy `/api/*` -> app:8080) |
 | postgres | 5432 | Postgres 16, banco devopsac1 |
 | pgadmin | 5050 | pgAdmin4 (admin@admin.com / admin) para administrar o Postgres |
+
+Com os containers de pe, o app completo (front consumindo a API real) fica em `http://localhost:8082`, sem
+precisar rodar `npm run dev` nem `mvnw spring-boot:run` manualmente - cada camada roda isolada no seu proprio
+container.
 
 Por padrao a aplicacao usa H2 (arquivo em ./data). Pra rodar contra o Postgres do compose em vez do H2,
 descomente as 4 variaveis SPRING_DATASOURCE_* de Postgres no [.env.example](.env.example) (copie pra .env) e
