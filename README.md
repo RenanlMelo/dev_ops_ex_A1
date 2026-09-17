@@ -130,26 +130,16 @@ contra o H2 em memoria; o proprio `docker compose up` sobe o Postgres + pgAdmin 
 Documentacao interativa (Swagger UI) em `http://localhost:8080/swagger-ui/index.html`
 (OpenAPI JSON cru em `/v3/api-docs`). Health check do Actuator em `/actuator/health`.
 
+Somente os endpoints realmente consumidos pelo front (`frontend/src/api.js`) foram mantidos - a API nao
+tenta simular um CRUD completo, so o que o fluxo do quiz precisa:
+
 | Metodo | Rota | Descricao |
 |--------|------|-----------|
-| GET    | `/courses?page=&size=` | Lista cursos (paginado) |
-| GET    | `/courses/{id}` | Detalhe de um curso |
 | POST   | `/courses` | Cria um curso |
-| PUT    | `/courses/{id}` | Renomeia um curso |
-| DELETE | `/courses/{id}` | Remove um curso |
-| GET    | `/courses/{id}/enrollments` | Turma (matriculas) do curso |
-| GET    | `/courses/{id}/average` | Media da turma (so matriculas concluidas) |
-| GET    | `/students?page=&size=` | Lista alunos (paginado) |
-| GET    | `/students/{id}` | Detalhe de um aluno |
 | POST   | `/students` | Cria um aluno |
-| PUT    | `/students/{id}` | Renomeia um aluno |
-| DELETE | `/students/{id}` | Remove um aluno |
-| GET    | `/students/{id}/enrollments` | Historico de matriculas do aluno |
-| GET    | `/students/{id}/eligible-for-extra-courses` | Se o aluno tem direito a cursos extra |
 | POST   | `/enrollments` | Matricula um aluno em um curso |
-| GET    | `/enrollments/{id}` | Detalhe de uma matricula |
 | POST   | `/enrollments/{id}/complete` | Conclui a matricula com uma nota (0-10) |
-| GET    | `/enrollments/{id}/average` | Nota final (409 se ainda nao concluida) |
+| GET    | `/students/{id}/eligible-for-extra-courses` | Se o aluno tem direito a cursos extra |
 
 Erros seguem um formato unico (status, error, message, timestamp): 404 pra recurso inexistente, 409 pra
 regra de negocio violada (ex: pedir media de matricula nao concluida), 400 pra validacao de request (ex: nota fora

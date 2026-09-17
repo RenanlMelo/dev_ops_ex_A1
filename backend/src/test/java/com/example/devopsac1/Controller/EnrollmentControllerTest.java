@@ -1,7 +1,6 @@
 package com.example.devopsac1.Controller;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,21 +78,10 @@ class EnrollmentControllerTest {
     }
 
     @Test
-    void getsExistingEnrollment() throws Exception {
-        long enrollmentId = enrollmentRepository.save(new Enrollment(
-                courseRepository.findById(courseId).orElseThrow(),
-                studentRepository.findById(studentId).orElseThrow()
-        )).getId();
-
-        mockMvc.perform(get("/enrollments/" + enrollmentId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.courseId", is(courseId.intValue())))
-                .andExpect(jsonPath("$.studentId", is(studentId.intValue())));
-    }
-
-    @Test
-    void getMissingEnrollmentReturns404() throws Exception {
-        mockMvc.perform(get("/enrollments/999"))
+    void completingMissingEnrollmentReturns404() throws Exception {
+        mockMvc.perform(post("/enrollments/999/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"grade\":8.5}"))
                 .andExpect(status().isNotFound());
     }
 
@@ -123,31 +111,5 @@ class EnrollmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"grade\":15}"))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void averageBeforeCompletionReturns409() throws Exception {
-        long enrollmentId = enrollmentRepository.save(new Enrollment(
-                courseRepository.findById(courseId).orElseThrow(),
-                studentRepository.findById(studentId).orElseThrow()
-        )).getId();
-
-        mockMvc.perform(get("/enrollments/" + enrollmentId + "/average"))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status", is(409)));
-    }
-
-    @Test
-    void averageAfterCompletionReturnsGrade() throws Exception {
-        Enrollment enrollment = new Enrollment(
-                courseRepository.findById(courseId).orElseThrow(),
-                studentRepository.findById(studentId).orElseThrow()
-        );
-        enrollment.complete(7.5);
-        long enrollmentId = enrollmentRepository.save(enrollment).getId();
-
-        mockMvc.perform(get("/enrollments/" + enrollmentId + "/average"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.average", is(7.5)));
     }
 }

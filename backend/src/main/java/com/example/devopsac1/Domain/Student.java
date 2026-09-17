@@ -29,10 +29,6 @@ public class Student {
         return name;
     }
 
-    public void rename(String name) {
-        this.name = name;
-    }
-
     @Override
     public String toString() {
         return "Student{id=" + id + ", name='" + name + "'}";
