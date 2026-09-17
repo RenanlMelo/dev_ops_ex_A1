@@ -112,6 +112,11 @@ descomente as 4 variaveis SPRING_DATASOURCE_* de Postgres no [.env.example](.env
 suba de novo com `docker compose up --build` - o Hibernate cria o schema automaticamente no Postgres tambem
 (ddl-auto=update), sem precisar de migracao manual.
 
+Evidencia real: subimos uma instancia apontada para o Postgres do compose, criamos um curso via
+`POST /courses`, e confirmamos tanto via `psql` quanto via pgAdmin (Databases > devopsac1 > Schemas > public >
+Tables) que as 3 tabelas (course, enrollment, student) foram criadas pelo Hibernate e o registro aparece la -
+ver [docs/postgres-evidence/tables.txt](docs/postgres-evidence/tables.txt).
+
 Evidencias de H2 e Postgres rodando: `docs/tdd-evidence/` (ver secao acima) mostra a suite completa passando
 contra o H2 em memoria; o proprio `docker compose up` sobe o Postgres + pgAdmin lado a lado com o H2 do app.
 

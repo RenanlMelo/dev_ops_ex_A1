@@ -1,0 +1,13 @@
+            List of relations
+ Schema |    Name    | Type  |   Owner   
+--------+------------+-------+-----------
+ public | course     | table | devopsac1
+ public | enrollment | table | devopsac1
+ public | student    | table | devopsac1
+(3 rows)
+
+ id |        name        
+----+--------------------
+  1 | Evidencia Postgres
+(1 row)
+
