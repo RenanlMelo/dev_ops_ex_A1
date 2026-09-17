@@ -28,6 +28,17 @@ participante de exemplo. Os tres cenarios estao implementados como testes em
 | Renan | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for abaixo de 7,0, entao o usuario nao tera direito a realizacao de mais 3 cursos. |
 | Roberto | Dado um curso e um Participante valido, enquanto o curso nao for concluido, entao o usuario nao tera acesso a sua media do curso. |
 
+### RED -> GREEN por integrante (CourseServiceTest)
+
+Cada integrante validou seu proprio cenario com o ciclo RED (assercao falhando) -> GREEN (assercao passando),
+rodado via Maven no IntelliJ (`branch-Kevin`):
+
+| Integrante | Teste (CourseServiceTest) | RED | GREEN |
+|---|---|---|---|
+| Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha (`There are test failures`) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` |
+| Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` |
+| Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha (`There are test failures`) | `BUILD SUCCESS`, relatorio JaCoCo gerado |
+
 ## Estrutura do repositorio
 
 ```
