@@ -35,9 +35,9 @@ rodado via Maven no IntelliJ (`branch-Kevin`):
 
 | Integrante | Teste (CourseServiceTest) | RED | GREEN |
 |---|---|---|---|
-| Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha (`There are test failures`) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` |
-| Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` |
-| Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha (`There are test failures`) | `BUILD SUCCESS`, relatorio JaCoCo gerado |
+| Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha ([print](docs/tdd-evidence/team/kevin-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/kevin-green.png), [cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)) |
+| Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha ([print](docs/tdd-evidence/team/renan-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/renan-green.png), [cobertura](docs/tdd-evidence/team/renan-green-coverage.png)) |
+| Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha ([print](docs/tdd-evidence/team/roberto-red.png)) | `BUILD SUCCESS`, relatorio JaCoCo gerado ([print](docs/tdd-evidence/team/roberto-green.png), [cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)) |
 
 ## Estrutura do repositorio
 
