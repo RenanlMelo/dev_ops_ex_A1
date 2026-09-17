@@ -39,6 +39,36 @@ rodado via Maven no IntelliJ (`branch-Kevin`):
 | Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha ([print](docs/tdd-evidence/team/renan-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/renan-green.png), [cobertura](docs/tdd-evidence/team/renan-green-coverage.png)) |
 | Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha ([print](docs/tdd-evidence/team/roberto-red.png)) | `BUILD SUCCESS`, relatorio JaCoCo gerado ([print](docs/tdd-evidence/team/roberto-green.png), [cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)) |
 
+**Kevin** - RED:
+
+![Kevin RED](docs/tdd-evidence/team/kevin-red.png)
+
+**Kevin** - GREEN:
+
+![Kevin GREEN](docs/tdd-evidence/team/kevin-green.png)
+
+![Kevin cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)
+
+**Renan** - RED:
+
+![Renan RED](docs/tdd-evidence/team/renan-red.png)
+
+**Renan** - GREEN:
+
+![Renan GREEN](docs/tdd-evidence/team/renan-green.png)
+
+![Renan cobertura](docs/tdd-evidence/team/renan-green-coverage.png)
+
+**Roberto** - RED:
+
+![Roberto RED](docs/tdd-evidence/team/roberto-red.png)
+
+**Roberto** - GREEN:
+
+![Roberto GREEN](docs/tdd-evidence/team/roberto-green.png)
+
+![Roberto cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)
+
 ## Estrutura do repositorio
 
 ```
