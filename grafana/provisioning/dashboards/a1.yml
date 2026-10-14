@@ -1,0 +1,11 @@
+apiVersion: 1
+providers:
+  - name: A1 HOMOL
+    orgId: 1
+    folder: DevOps A2
+    type: file
+    disableDeletion: true
+    allowUiUpdates: true
+    updateIntervalSeconds: 15
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

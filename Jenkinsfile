@@ -57,6 +57,8 @@ pipeline {
             steps {
                 script {
                     runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d app frontend postgres pgadmin prometheus grafana')
+                    // Recarrega os providers de dashboards adicionados ao volume de provisioning.
+                    runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml restart grafana')
                 }
             }
         }
