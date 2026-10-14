@@ -4,10 +4,17 @@ WORKDIR /app
 
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw -q dependency:go-offline
+# Retry interrupted downloads without hiding a persistent resolution failure.
+RUN chmod +x mvnw && \
+    for attempt in 1 2 3; do \
+        ./mvnw -B -U dependency:go-offline && break; \
+        if [ "$attempt" -eq 3 ]; then exit 1; fi; \
+        echo "Dependency download failed; retrying in 10 seconds ($attempt/3)"; \
+        sleep 10; \
+    done
 
 COPY src ./src
-RUN ./mvnw -q -o -DskipTests package
+RUN ./mvnw -B -DskipTests package
 
 # ---- Runtime stage ----
 FROM eclipse-temurin:24-jre
