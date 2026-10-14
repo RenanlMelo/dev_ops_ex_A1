@@ -50,11 +50,44 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5051}:80"
     depends_on:
       - postgres
     volumes:
       - dev-ops-ac1-pgadmin-data:/var/lib/pgadmin
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      - app
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "${GRAFANA_PORT:-3002}:3000"
+    depends_on:
+      - prometheus
+
+  cypress:
+    image: cypress/included:14.5.4
+    profiles: ["e2e"]
+    working_dir: /e2e
+    environment:
+      CYPRESS_BASE_URL: http://frontend
+    volumes:
+      - ./frontend:/e2e
+    depends_on:
+      - frontend
+    entrypoint: ["cypress", "run"]
 
 volumes:
   dev-ops-ac1-data:

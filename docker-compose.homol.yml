@@ -1,0 +1,16 @@
+# Complemento do Compose base para o deploy da A2.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d
+services:
+  app:
+    environment:
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/devopsac1
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_USERNAME: devopsac1
+      SPRING_DATASOURCE_PASSWORD: devopsac1
+      SPRING_H2_CONSOLE_ENABLED: "false"
+      SPRING_JPA_SHOW_SQL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
