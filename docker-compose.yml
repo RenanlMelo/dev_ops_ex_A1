@@ -32,7 +32,7 @@ services:
     environment:
       POSTGRES_DB: devopsac1
       POSTGRES_USER: devopsac1
-      POSTGRES_PASSWORD: devopsac1
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env or Jenkins credentials}
     ports:
       - "5432:5432"
     volumes:
@@ -47,8 +47,8 @@ services:
     image: dpage/pgadmin4
     platform: linux/amd64
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Set PGADMIN_DEFAULT_PASSWORD in .env or Jenkins credentials}
     ports:
       - "${PGADMIN_PORT:-5051}:80"
     depends_on:
@@ -60,6 +60,7 @@ services:
     image: prom/prometheus:latest
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - dev-ops-ac1-prometheus-data:/prometheus
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     depends_on:
@@ -68,10 +69,11 @@ services:
   grafana:
     image: grafana/grafana:latest
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env or Jenkins credentials}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - dev-ops-ac1-grafana-data:/var/lib/grafana
     ports:
       - "${GRAFANA_PORT:-3002}:3000"
     depends_on:
@@ -93,3 +95,5 @@ volumes:
   dev-ops-ac1-data:
   dev-ops-ac1-postgres-data:
   dev-ops-ac1-pgadmin-data:
+  dev-ops-ac1-prometheus-data:
+  dev-ops-ac1-grafana-data:

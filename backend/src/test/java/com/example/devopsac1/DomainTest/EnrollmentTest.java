@@ -1,8 +1,6 @@
 package com.example.devopsac1.DomainTest;
 
-import com.example.devopsac1.Domain.Course;
-import com.example.devopsac1.Domain.Enrollment;
-import com.example.devopsac1.Domain.Student;
+import com.example.devopsac1.matricula.internal.Enrollment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,9 +15,7 @@ public class EnrollmentTest {
 
     @BeforeEach
     public void setUp() {
-        Course course = new Course("Advanced Java");
-        Student student = new Student("Roberto");
-        enrollment = new Enrollment(course, student);
+        enrollment = new Enrollment(1L, 2L);
     }
 
     @Test
@@ -63,8 +59,8 @@ public class EnrollmentTest {
     }
 
     @Test
-    public void exposesCourseAndStudent() {
-        assertEquals("Advanced Java", enrollment.getCourse().getName());
-        assertEquals("Roberto", enrollment.getStudent().getName());
+    public void exposesCourseAndStudentIds() {
+        assertEquals(1L, enrollment.getCourseId());
+        assertEquals(2L, enrollment.getStudentId());
     }
 }

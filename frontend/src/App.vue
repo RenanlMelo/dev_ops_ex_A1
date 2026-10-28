@@ -66,8 +66,8 @@ const wasCorrect = ref(false)
 const confettiPieces = ref([])
 
 const currentStep = computed(() => {
-  if (!quizStarted) return 1
-  if (!answered) return 2
+  if (!quizStarted.value) return 1
+  if (!answered.value) return 2
   return 3
 })
 

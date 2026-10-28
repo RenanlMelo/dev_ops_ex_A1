@@ -5,6 +5,13 @@
 Atividade de DevOps (BDD + TDD, ou seja, ATDD) - API de matricula em cursos em Spring Boot, com front-end em
 Vue, implementando o case "Educacao Continuada Gamificada" apresentado em aula.
 
+
+## B1 — Desafio 1
+
+O Core agora é um Monólito Modular com módulos `curso`, `aluno` e `matricula`, sem alterar as rotas da AC1. A decisão ADR-001, o C4, a matriz de rastreabilidade e os comandos de validação estão em [docs/arquitetura/README.md](docs/arquitetura/README.md). Ranking e gamificação permanecem capacidades futuras do case. A suíte atual executa 42 testes, incluindo as fronteiras de módulos e um fluxo HTTP completo.
+
+O histórico RED → GREEN → BLUE abaixo registra o trabalho da AC1 antes desta reorganização; os links de relatório JaCoCo nessa seção são evidências históricas.
+
 ## Estudo de caso
 
 Plataforma de EAD (Educacao a Distancia) gamificada: o aluno se matricula em um curso, o conclui com uma nota, e
@@ -20,7 +27,7 @@ cursos extras (o acesso a media so e liberado apos a conclusao do curso).
 
 Cada integrante do grupo escreveu um cenario BDD (Given/When/Then) para a US4, usando a si mesmo como
 participante de exemplo. Os tres cenarios estao implementados como testes em
-[CourseServiceTest.java](backend/src/test/java/com/example/devopsac1/Test/CourseServiceTest.java):
+[EnrollmentRulesTest.java](backend/src/test/java/com/example/devopsac1/matricula/internal/EnrollmentRulesTest.java):
 
 | Integrante | BDD |
 |---|---|
@@ -28,12 +35,12 @@ participante de exemplo. Os tres cenarios estao implementados como testes em
 | Renan | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for abaixo de 7,0, entao o usuario nao tera direito a realizacao de mais 3 cursos. |
 | Roberto | Dado um curso e um Participante valido, enquanto o curso nao for concluido, entao o usuario nao tera acesso a sua media do curso. |
 
-### RED -> GREEN por integrante (CourseServiceTest)
+### RED -> GREEN por integrante (teste de regras da matrícula)
 
 Cada integrante validou seu proprio cenario com o ciclo RED (assercao falhando) -> GREEN (assercao passando),
-rodado via Maven no IntelliJ (`branch-Kevin`):
+rodado via Maven no IntelliJ (`branch-Kevin`). Os cenários permanecem no teste `EnrollmentRulesTest` após a modularização:
 
-| Integrante | Teste (CourseServiceTest) | RED | GREEN |
+| Integrante | Teste (atual: EnrollmentRulesTest) | RED | GREEN |
 |---|---|---|---|
 | Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha ([print](docs/tdd-evidence/team/kevin-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/kevin-green.png), [cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)) |
 | Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha ([print](docs/tdd-evidence/team/renan-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/renan-green.png), [cobertura](docs/tdd-evidence/team/renan-green-coverage.png)) |
@@ -72,26 +79,26 @@ rodado via Maven no IntelliJ (`branch-Kevin`):
 ## Estrutura do repositorio
 
 ```
-backend/    API Spring Boot (Java 24, JPA, H2, Postgres)
+backend/    API Spring Boot (Java 21, JPA, H2, Postgres)
 frontend/   SPA Vue 3 + Vite que consome a API
 docs/tdd-evidence/   Evidencias do ciclo RED-GREEN-BLUE (prints + relatorios JaCoCo)
 ```
 
-Dentro do backend, o codigo segue por camadas:
+Dentro do backend, o codigo atual segue capacidades de negocio:
 
 ```
-Domain/       Entidades de dominio (Course, Student, Enrollment) - @Entity JPA
-Repository/   Spring Data JPA (CourseRepository, StudentRepository, EnrollmentRepository)
-Service/      Regra de negocio (CourseService)
-Dto/          Records de request/response da API
-Controller/   Endpoints REST (CourseController, StudentController, EnrollmentController)
-Exception/    Tratamento de erro centralizado (404/409/400)
-Config/       Configuracao do Swagger/OpenAPI
+curso/api, curso/internal          Curso, contrato de consulta e persistencia
+aluno/api, aluno/internal          Aluno, contrato de consulta e persistencia
+matricula/api, matricula/internal  Matricula, elegibilidade e regras de conclusao
+shared/                            Tratamento centralizado de erros
+Config/                            Swagger/OpenAPI
 ```
+
+O teste `ModuleBoundariesTest` verifica que controllers nao acessam repositories e que modulos so dependem de contratos publicos de outros modulos. A estrutura anterior por camadas e seus prints permanecem documentados nas evidencias da AC1.
 
 ## TDD: ciclo RED -> GREEN -> BLUE
 
-Aplicado em [Enrollment.hasGradeAboveMinimum()](backend/src/main/java/com/example/devopsac1/Domain/Enrollment.java),
+Aplicado em [Enrollment.hasGradeAboveMinimum()](backend/src/main/java/com/example/devopsac1/matricula/internal/Enrollment.java),
 testado diretamente por
 [EnrollmentTest](backend/src/test/java/com/example/devopsac1/DomainTest/EnrollmentTest.java) (pacote DomainTest, teste de dominio, no
 mesmo estilo do exercicio da calculadora - sem passar por Spring, so instancia a classe e chama o metodo).
@@ -140,23 +147,24 @@ Abre em `http://localhost:5173`. O Vite faz proxy de `/api/*` para `http://local
 docker compose up --build
 ```
 
-Sobe 4 containers separados (um pro banco, um pro backend, um pro frontend, um pro admin do banco):
+Antes de subir os containers, copie `.env.example` para `.env` e defina senhas locais para PostgreSQL, pgAdmin e Grafana. `.env` e ignorado pelo Git. O Compose sobe os servicos abaixo:
 
 | Servico | Porta | Descricao |
 |---|---|---|
 | app | 8080 | API Spring Boot (H2 por padrao) |
 | frontend | 8082 | Frontend Vue compilado, servido por Nginx (proxy `/api/*` -> app:8080) |
 | postgres | 5432 | Postgres 16, banco devopsac1 |
-| pgadmin | 5050 | pgAdmin4 (admin@admin.com / admin) para administrar o Postgres |
+| pgadmin | 5051 | pgAdmin4, com login definido no `.env` |
+| prometheus | 9090 | Metricas da API em `app:8080/actuator/prometheus` |
+| grafana | 3002 | Dashboard A1 provisionado |
 
 Com os containers de pe, o app completo (front consumindo a API real) fica em `http://localhost:8082`, sem
 precisar rodar `npm run dev` nem `mvnw spring-boot:run` manualmente - cada camada roda isolada no seu proprio
 container.
 
 Por padrao a aplicacao usa H2 (arquivo em ./data). Pra rodar contra o Postgres do compose em vez do H2,
-descomente as 4 variaveis SPRING_DATASOURCE_* de Postgres no [.env.example](.env.example) (copie pra .env) e
-suba de novo com `docker compose up --build` - o Hibernate cria o schema automaticamente no Postgres tambem
-(ddl-auto=update), sem precisar de migracao manual.
+use `docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d --build` com as senhas no `.env` - o Hibernate cria o schema automaticamente no Postgres tambem
+(ddl-auto=update), e execute a migracao idempotente de chaves estrangeiras em `docs/arquitetura/sql/001-ensure-enrollment-fks.sql` (o Jenkins a executa automaticamente).
 
 Evidencia real: subimos uma instancia apontada para o Postgres do compose, criamos um curso via
 `POST /courses`, e confirmamos tanto via `psql` quanto via pgAdmin (Databases > devopsac1 > Schemas > public >
@@ -212,5 +220,5 @@ cd backend
 ./mvnw test
 ```
 
-54 testes no total: testes de dominio/servico (JUnit puro, sem Spring) e testes de integracao dos controllers
+42 testes nesta revisao: testes de dominio/servico, fronteiras de modulos (JUnit puro, sem Spring) e testes de integracao dos controllers
 (JUnit + MockMvc + banco H2 em memoria, sem mocks de repositorio).
