@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM eclipse-temurin:24-jdk AS build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY .mvn/ .mvn/
@@ -17,7 +17,7 @@ COPY src ./src
 RUN ./mvnw -B -DskipTests package
 
 # ---- Runtime stage ----
-FROM eclipse-temurin:24-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 RUN apt-get update \

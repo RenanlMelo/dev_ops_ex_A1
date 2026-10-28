@@ -6,12 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.devopsac1.Domain.Course;
-import com.example.devopsac1.Domain.Enrollment;
-import com.example.devopsac1.Domain.Student;
-import com.example.devopsac1.Repository.CourseRepository;
-import com.example.devopsac1.Repository.EnrollmentRepository;
-import com.example.devopsac1.Repository.StudentRepository;
+import com.example.devopsac1.curso.internal.Course;
+import com.example.devopsac1.matricula.internal.Enrollment;
+import com.example.devopsac1.aluno.internal.Student;
+import com.example.devopsac1.curso.internal.CourseRepository;
+import com.example.devopsac1.matricula.internal.EnrollmentRepository;
+import com.example.devopsac1.aluno.internal.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ class StudentControllerTest {
     void eligibilityIsTrueWithGradeAboveMinimum() throws Exception {
         Student student = studentRepository.save(new Student("Kevin"));
         Course course = courseRepository.save(new Course("Advanced Java"));
-        Enrollment enrollment = new Enrollment(course, student);
+        Enrollment enrollment = new Enrollment(course.getId(), student.getId());
         enrollment.complete(8.5);
         enrollmentRepository.save(enrollment);
 

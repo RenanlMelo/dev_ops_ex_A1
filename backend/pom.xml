@@ -83,6 +83,12 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit-junit5</artifactId>
+			<version>1.4.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -95,8 +101,8 @@
                     <targetJdk>${java.version}</targetJdk>
                     <linkXRef>false</linkXRef>
                     <printFailingErrors>true</printFailingErrors>
-                    <!-- Relatorio informativo, como no modelo da A2. -->
-                    <failOnViolation>false</failOnViolation>
+                    <!-- PMD is a required quality gate for the B1 pipeline. -->
+                    <failOnViolation>true</failOnViolation>
                 </configuration>
             </plugin>
 			<plugin>

@@ -19,10 +19,10 @@ O Jogo Enigma serve como referencia; a aplicacao entregue e a do A1.
 
 Git -> Checkout -> CI (JUnit + JaCoCo -> PMD -> Package) ->
 CD (Docker Build -> Deploy HOMOL -> Health Check -> Cypress) ->
-verificacao manual de Prometheus e Grafana.
+verificacao automatica de Prometheus e Grafana no pipeline B1.
 
-O PMD gera relatorios informativos; violacoes de regras nao bloqueiam o deploy,
-como no projeto de referencia. Falhas de execucao Maven e testes bloqueiam os
+O PMD era informativo na esteira A2; no pipeline B1, `pmd:check` bloqueia o deploy
+se houver violacoes. Falhas de execucao Maven e testes tambem bloqueiam os
 estagios seguintes. Os relatorios PMD e JaCoCo ficam nos artefatos do build.
 
 O deploy combina `docker-compose.yml` com `docker-compose.homol.yml`.
@@ -48,8 +48,8 @@ Jogo Enigma.
 O nome de coleta `jogo-enigma-api` foi mantido para compatibilidade com a
 consulta do roteiro, mas o endereco coletado e `app:8080`, a API do A1.
 No Grafana, use `up{job="jogo-enigma-api"}` e confirme o valor 1.
-O stage Observabilidade exibe instrucoes; nao certifica automaticamente os
-servicos de monitoramento.
+O stage Observabilidade do pipeline B1 valida target UP no Prometheus e consulta
+`up=1` diretamente no Prometheus e atraves do datasource do Grafana.
 
 ## Evidencias da entrega
 
