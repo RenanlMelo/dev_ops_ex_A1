@@ -1,0 +1,15 @@
+# Banco descartável e rede própria para testar sem concluir o curso do aluno em 8082.
+# docker compose -p b1-ui-validation -f docker-compose.yml -f docker-compose.homol.yml -f docker-compose.e2e.yml up -d postgres app frontend
+services:
+  app:
+    ports: !reset []
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+  frontend:
+    image: dev_ops_ac1-frontend
+    ports: !reset []
+  postgres:
+    ports: !reset []

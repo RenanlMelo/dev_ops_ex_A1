@@ -115,10 +115,26 @@ pipeline {
             }
         }
         stage('7b - CD - Integridade relacional') {
-            steps { script { runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/001-ensure-enrollment-fks.sql') } }
+            steps { script {
+                runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/001-ensure-enrollment-fks.sql')
+                runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/003-achievements-wallet-tables.sql')
+                runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/004-reward-tables.sql')
+                runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/002-gamification-fks.sql')
+            } }
         }
         stage('8 - CD - Cypress E2E') {
-            steps { script { runCmd('docker compose -f docker-compose.yml -f docker-compose.homol.yml --profile e2e run --rm cypress') } }
+            steps { script {
+                // Each build gets a disposable database: E2E never consumes the learner's pending course.
+                String isolated = "docker compose -p b1-e2e-${env.BUILD_NUMBER} -f docker-compose.yml -f docker-compose.homol.yml -f docker-compose.e2e.yml"
+                try {
+                    runCmd("${isolated} up -d --no-build --wait --wait-timeout 120 postgres app frontend")
+                    runCmd("${isolated} exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/001-ensure-enrollment-fks.sql")
+                    runCmd("${isolated} exec -T postgres psql -U devopsac1 -d devopsac1 -v ON_ERROR_STOP=1 < docs/arquitetura/sql/002-gamification-fks.sql")
+                    runCmd("${isolated} --profile e2e run --rm --no-deps cypress")
+                } finally {
+                    runCmd("${isolated} down --volumes --remove-orphans")
+                }
+            } }
             post {
                 always {
                     archiveArtifacts artifacts: 'frontend/cypress/screenshots/**,frontend/cypress/videos/**', allowEmptyArchive: true
@@ -155,6 +171,10 @@ pipeline {
                     def dashboard = new JsonSlurperClassic().parseText(outputCmd("curl -sf ${auth} http://localhost:3002/api/dashboards/uid/a1-observabilidade-homol"))
                     if (dashboard.dashboard?.uid != 'a1-observabilidade-homol') {
                         error('Dashboard A1 de observabilidade nao encontrado no Grafana')
+                    }
+                    def gameDashboard = new JsonSlurperClassic().parseText(outputCmd("curl -sf ${auth} http://localhost:3002/api/dashboards/uid/b1-gamificacao"))
+                    if (gameDashboard.dashboard?.uid != 'b1-gamificacao') {
+                        error('Dashboard B1 de gamificacao nao encontrado no Grafana')
                     }
                     echo 'Prometheus target UP, consulta up=1, datasource e dashboard Grafana operacionais.'
                 }

@@ -1,0 +1,14 @@
+﻿ 
+
+> dev-ops-ex-a1-frontend@0.2.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 12 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                  0.44 kB │ gzip:  0.31 kB
+dist/assets/index-CM13a2-x.css  10.51 kB │ gzip:  2.96 kB
+dist/assets/index-Si_Qynk3.js   80.93 kB │ gzip: 31.64 kB
+✓ built in 1.24s

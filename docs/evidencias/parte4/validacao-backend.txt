@@ -1,0 +1,20 @@
+﻿[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.85 s -- in com.example.devopsac1.architecture.ModuleBoundariesTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.037 s -- in com.example.devopsac1.architecture.RankingBoundaryTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.284 s -- in com.example.devopsac1.conquista.internal.GamificationRulesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.98 s -- in com.example.devopsac1.Controller.CourseControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.585 s -- in com.example.devopsac1.Controller.EnrollmentControllerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.110 s -- in com.example.devopsac1.Controller.StudentControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.example.devopsac1.DomainTest.EnrollmentTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.129 s -- in com.example.devopsac1.Exception.GlobalExceptionHandlerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.689 s -- in com.example.devopsac1.gamification.AchievementApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.875 s -- in com.example.devopsac1.gamification.AchievementTransactionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.398 s -- in com.example.devopsac1.gamification.GamificationApiTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.391 s -- in com.example.devopsac1.gamification.GamificationTransactionTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in com.example.devopsac1.matricula.internal.EnrollmentRulesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.058 s -- in com.example.devopsac1.matricula.internal.LearningSpaceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.309 s -- in com.example.devopsac1.matricula.internal.RankingFlowTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.503 s -- in com.example.devopsac1.performance.RankingCapacityTest
+[INFO] Tests run: 70, Failures: 0, Errors: 0, Skipped: 0
+[INFO] PMD version: 7.7.0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  01:09 min
