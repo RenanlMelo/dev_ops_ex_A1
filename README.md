@@ -6,7 +6,13 @@ O Core da AC1 foi reorganizado de pacotes por camada técnica para os módulos `
 
 O contrato HTTP continua: `POST /courses`, `POST /students`, `POST /enrollments`, `POST /enrollments/{id}/complete` e `GET /students/{id}/eligible-for-extra-courses`. As tabelas `course`, `student` e `enrollment`, inclusive `course_id` e `student_id`, mantêm nomes e tipos. A entidade `Enrollment` passou a guardar esses IDs em vez de depender das entidades internas de outros módulos. Na instalação existente, as chaves estrangeiras do PostgreSQL permanecem no banco. A aplicação valida as referências por `CourseLookup` e `StudentLookup` antes de criar matrículas. Não há alteração de payload nem migração destrutiva de dados.
 
-### Fronteiras dos módulos
+## Entrega da parte 2 Ranking
+
+Branch `codex/b1-parte2-ranking`, baseada na parte 1. O commit adicional implementa somente Ranking: projeção persistida e indexada, paginação, desempate por ID, posição individual e painel lateral. Pontos = nota × 10; a revisão da nota substitui os pontos. Matrícula atualiza o ranking pela API Scoreboard na mesma transação. O backfill reconstrói os totais das conclusões antigas; `ranking.backfill.enabled=false` o desativa.
+
+Moedas, badges, conquistas e recompensas não estão incluídos. A outra pessoa poderá integrar esses módulos depois pelo contrato Scoreboard, substituindo o atual adaptador EnrollmentRankingUpdater. A versão completa original continua preservada localmente.
+
+## Entrega da parte 1 Área do aluno e cursos
 
 | Módulo | API/contrato | Implementação interna |
 |---|---|---|

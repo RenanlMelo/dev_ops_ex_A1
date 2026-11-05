@@ -1,8 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import RankingPanel from './RankingPanel.vue'
 import { completeEnrollment, getEligibility, getLearningSpace } from './api'
 
 const workspace = ref(null)
+const revision = ref(0)
 const search = ref('')
 const filter = ref('all')
 const activeId = ref(null)
@@ -51,6 +53,7 @@ async function confirmAnswer() {
     await completeEnrollment(active.value.enrollmentId, correct ? 8.5 : 4.5)
     await load()
     eligible.value = (await getEligibility(workspace.value.student.id)).eligibleForExtraCourses
+    revision.value++
     feedback.value = correct ? 'Você acertou a pergunta!' : 'Você errou a pergunta.'
   } catch (failure) { error.value = failure.message }
   finally { submitting.value = false }
@@ -85,5 +88,6 @@ onMounted(async () => { try { await load() } catch (failure) { error.value = fai
       </article></div>
       <p v-if="workspace && !visibleCourses.length" class="empty-state">Nenhum curso encontrado. Tente outro nome ou filtro.</p>
     </section>
+    <RankingPanel v-if="workspace" :student-id="workspace.student.id" :revision="revision" />
   </main>
 </template>

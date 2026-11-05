@@ -1,6 +1,7 @@
 package com.example.devopsac1.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -18,9 +19,8 @@ class ModuleBoundariesTest {
 
     @Test
     void publicApisDoNotDependOnInternalImplementations() {
-        noClasses().that().resideInAnyPackage("..curso.api..", "..aluno.api..", "..matricula.api..")
-                .should().dependOnClassesThat().resideInAnyPackage(
-                        "..curso.internal..", "..aluno.internal..", "..matricula.internal..")
+        noClasses().that().resideInAPackage("..api..")
+                .should().dependOnClassesThat().resideInAPackage("..internal..")
                 .check(classes);
     }
 
@@ -42,5 +42,24 @@ class ModuleBoundariesTest {
         noClasses().that().resideInAPackage("..matricula..")
                 .should().dependOnClassesThat().resideInAnyPackage("..curso.internal..", "..aluno.internal..")
                 .check(classes);
+    }
+
+    @Test
+    void allModulesRespectEveryOtherModulesInternalBoundary() {
+        String[] modules = {"curso", "aluno", "matricula", "ranking", "conquista", "carteira"};
+        for (String source : modules) {
+            for (String target : modules) {
+                if (!source.equals(target)) {
+                    noClasses().that().resideInAPackage(".." + source + "..")
+                            .should().dependOnClassesThat().resideInAPackage(".." + target + ".internal..")
+                            .check(classes);
+                }
+            }
+        }
+    }
+
+    @Test
+    void modulesHaveNoDependencyCycles() {
+        slices().matching("com.example.devopsac1.(*)..").should().beFreeOfCycles().check(classes);
     }
 }
