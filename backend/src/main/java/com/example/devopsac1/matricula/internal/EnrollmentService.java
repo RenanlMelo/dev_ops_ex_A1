@@ -16,11 +16,16 @@ public class EnrollmentService implements EligibilityQuery, EnrollmentCommand {
     private final EnrollmentRepository repository;
     private final CourseLookup courses;
     private final StudentLookup students;
+    private final com.example.devopsac1.aluno.api.StudentLock studentLock;
+    private final EnrollmentRankingUpdater ranking;
 
-    public EnrollmentService(EnrollmentRepository repository, CourseLookup courses, StudentLookup students) {
+    public EnrollmentService(EnrollmentRepository repository, CourseLookup courses, StudentLookup students,
+                             com.example.devopsac1.aluno.api.StudentLock studentLock, EnrollmentRankingUpdater ranking) {
         this.repository = repository;
         this.courses = courses;
         this.students = students;
+        this.studentLock = studentLock;
+        this.ranking = ranking;
     }
 
     @Transactional
@@ -35,10 +40,13 @@ public class EnrollmentService implements EligibilityQuery, EnrollmentCommand {
     public EnrollmentResponse complete(Long id, double grade) {
         Enrollment enrollment = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment " + id + " not found"));
+        studentLock.lock(enrollment.getStudentId());
         enrollment.complete(grade);
         CourseView course = courses.require(enrollment.getCourseId());
         StudentView student = students.require(enrollment.getStudentId());
-        return response(repository.save(enrollment), course, student);
+        Enrollment saved = repository.saveAndFlush(enrollment);
+        ranking.refresh(student.id());
+        return response(saved, course, student);
     }
 
     @Override

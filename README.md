@@ -1,5 +1,10 @@
 # Educação Continuada Gamificada
 
+## Parte 2 Ranking
+
+Branch `codex/b1-parte2-ranking`, baseada na parte 1. Acrescenta ranking persistido e indexado, paginação, posição individual, desempate por ID e painel lateral. Pontos = nota × 10; atualizar a nota substitui os pontos. Matrícula atualiza Scoreboard na mesma transação por EnrollmentRankingUpdater; RankingBootstrap recompõe conclusões antigas. Os adaptadores serão substituídos ao integrar conquistas, sem duplicar pontuações.
+
+Validação local: 48 testes Java aprovados, PMD sem violações e build do frontend Docker. Esta entrega não contém moedas, badges ou recompensas. A documentação histórica abaixo permanece como registro das atividades anteriores.
 ## Parte 1 Área do aluno e cursos
 
 Branch `codex/b1-parte1-aluno-cursos`: perfil local persistente, seis cursos (cinco concluídos e um em andamento inicialmente), busca, filtros, avaliação final e resultados. As notas só aparecem após a conclusão. O perfil demonstrativo não implementa autenticação. `app.demo.enabled=false` desativa sua inicialização.

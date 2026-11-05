@@ -44,3 +44,6 @@ export function getEligibility(studentId) {
 }
 
 export const getLearningSpace = () => request('/learning-space')
+
+export const getRanking = (page = 0) => request(`/ranking?page=${page}&size=5`)
+export const getStudentRanking = id => request(`/ranking/students/${id}`)
