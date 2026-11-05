@@ -1,10 +1,10 @@
-# dev_ops_ac1
+# B1 — Desafio 1: drivers e evolução do Core
 
-[![CI](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml/badge.svg)](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml)
+## Estado e decisão
 
-Atividade de DevOps (BDD + TDD, ou seja, ATDD) - API de matricula em cursos em Spring Boot, com front-end em
-Vue, implementando o case "Educacao Continuada Gamificada" apresentado em aula.
+O Core da AC1 foi reorganizado de pacotes por camada técnica para os módulos `curso`, `aluno` e `matricula`. Ele continua sendo **um único processo Spring Boot e um único deploy**. A decisão ADR-001 está em [ADR-001.md](docs/arquitetura/ADR-001.md). Ranking, Conquistas, Moedas e Recompensas são capacidades futuras do case B1; não são funcionalidades da AC1 implementadas neste desafio.
 
+O contrato HTTP continua: `POST /courses`, `POST /students`, `POST /enrollments`, `POST /enrollments/{id}/complete` e `GET /students/{id}/eligible-for-extra-courses`. As tabelas `course`, `student` e `enrollment`, inclusive `course_id` e `student_id`, mantêm nomes e tipos. A entidade `Enrollment` passou a guardar esses IDs em vez de depender das entidades internas de outros módulos. Na instalação existente, as chaves estrangeiras do PostgreSQL permanecem no banco. A aplicação valida as referências por `CourseLookup` e `StudentLookup` antes de criar matrículas. Não há alteração de payload nem migração destrutiva de dados.
 
 ## Entrega da parte 2 Ranking
 
@@ -14,223 +14,297 @@ Moedas, badges, conquistas e recompensas não estão incluídos. A outra pessoa 
 
 ## Entrega da parte 1 Área do aluno e cursos
 
-Branch `codex/b1-parte1-aluno-cursos`. Implementa perfil local persistente, seis cursos (cinco concluídos e um em andamento na inicialização), pesquisa por nome, filtros, resultado e avaliação final. O perfil é demonstrativo, sem autenticação. `app.demo.enabled=false` desativa a inicialização. O frontend usa `/learning-space` e a API da matrícula; os dados não são redefinidos ao recarregar.
-
-Esta entrega não inclui Ranking, moedas, badges ou recompensas. A parte 2 será uma branch baseada nesta entrega. As partes 3 e 4 permanecem na cópia local completa para entrega posterior. A documentação histórica abaixo descreve a base anterior da AC1/B1.
-
-## B1 — Desafio 1
-
-O Core agora é um Monólito Modular com módulos `curso`, `aluno` e `matricula`, sem alterar as rotas da AC1. A decisão ADR-001, o C4, a matriz de rastreabilidade e os comandos de validação estão em [docs/arquitetura/README.md](docs/arquitetura/README.md). Ranking e gamificação permanecem capacidades futuras do case. A suíte atual executa 42 testes, incluindo as fronteiras de módulos e um fluxo HTTP completo.
-
-O histórico RED → GREEN → BLUE abaixo registra o trabalho da AC1 antes desta reorganização; os links de relatório JaCoCo nessa seção são evidências históricas.
-
-## Estudo de caso
-
-Plataforma de EAD (Educacao a Distancia) gamificada: o aluno se matricula em um curso, o conclui com uma nota, e
-- se a media final for maior que 7,0 - passa a ter direito a realizar mais 3 cursos extras. Antes do curso ser
-concluido, o aluno nao tem acesso a sua propria media.
-
-### User Story escolhida pelo grupo
-
-US4 - Como aluno, quero que minha media seja calculada ao concluir um curso, para saber se tenho direito a
-cursos extras (o acesso a media so e liberado apos a conclusao do curso).
-
-### BDDs por integrante
-
-Cada integrante do grupo escreveu um cenario BDD (Given/When/Then) para a US4, usando a si mesmo como
-participante de exemplo. Os tres cenarios estao implementados como testes em
-[EnrollmentRulesTest.java](backend/src/test/java/com/example/devopsac1/matricula/internal/EnrollmentRulesTest.java):
-
-| Integrante | BDD |
-|---|---|
-| Kevin | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for acima de 7,0, entao o usuario tem direito a realizacao de mais 3 cursos. |
-| Renan | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for abaixo de 7,0, entao o usuario nao tera direito a realizacao de mais 3 cursos. |
-| Roberto | Dado um curso e um Participante valido, enquanto o curso nao for concluido, entao o usuario nao tera acesso a sua media do curso. |
-
-### RED -> GREEN por integrante (teste de regras da matrícula)
-
-Cada integrante validou seu proprio cenario com o ciclo RED (assercao falhando) -> GREEN (assercao passando),
-rodado via Maven no IntelliJ (`branch-Kevin`). Os cenários permanecem no teste `EnrollmentRulesTest` após a modularização:
-
-| Integrante | Teste (atual: EnrollmentRulesTest) | RED | GREEN |
-|---|---|---|---|
-| Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha ([print](docs/tdd-evidence/team/kevin-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/kevin-green.png), [cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)) |
-| Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha ([print](docs/tdd-evidence/team/renan-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/renan-green.png), [cobertura](docs/tdd-evidence/team/renan-green-coverage.png)) |
-| Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha ([print](docs/tdd-evidence/team/roberto-red.png)) | `BUILD SUCCESS`, relatorio JaCoCo gerado ([print](docs/tdd-evidence/team/roberto-green.png), [cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)) |
-
-**Kevin** - RED:
-
-![Kevin RED](docs/tdd-evidence/team/kevin-red.png)
-
-**Kevin** - GREEN:
-
-![Kevin GREEN](docs/tdd-evidence/team/kevin-green.png)
-
-![Kevin cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)
-
-**Renan** - RED:
-
-![Renan RED](docs/tdd-evidence/team/renan-red.png)
-
-**Renan** - GREEN:
-
-![Renan GREEN](docs/tdd-evidence/team/renan-green.png)
-
-![Renan cobertura](docs/tdd-evidence/team/renan-green-coverage.png)
-
-**Roberto** - RED:
-
-![Roberto RED](docs/tdd-evidence/team/roberto-red.png)
-
-**Roberto** - GREEN:
-
-![Roberto GREEN](docs/tdd-evidence/team/roberto-green.png)
-
-![Roberto cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)
-
-## Estrutura do repositorio
-
-```
-backend/    API Spring Boot (Java 21, JPA, H2, Postgres)
-frontend/   SPA Vue 3 + Vite que consome a API
-docs/tdd-evidence/   Evidencias do ciclo RED-GREEN-BLUE (prints + relatorios JaCoCo)
-```
-
-Dentro do backend, o codigo atual segue capacidades de negocio:
-
-```
-curso/api, curso/internal          Curso, contrato de consulta e persistencia
-aluno/api, aluno/internal          Aluno, contrato de consulta e persistencia
-matricula/api, matricula/internal  Matricula, elegibilidade e regras de conclusao
-shared/                            Tratamento centralizado de erros
-Config/                            Swagger/OpenAPI
-```
-
-O teste `ModuleBoundariesTest` verifica que controllers nao acessam repositories e que modulos so dependem de contratos publicos de outros modulos. A estrutura anterior por camadas e seus prints permanecem documentados nas evidencias da AC1.
-
-## TDD: ciclo RED -> GREEN -> BLUE
-
-Aplicado em [Enrollment.hasGradeAboveMinimum()](backend/src/main/java/com/example/devopsac1/matricula/internal/Enrollment.java),
-testado diretamente por
-[EnrollmentTest](backend/src/test/java/com/example/devopsac1/DomainTest/EnrollmentTest.java) (pacote DomainTest, teste de dominio, no
-mesmo estilo do exercicio da calculadora - sem passar por Spring, so instancia a classe e chama o metodo).
-Evidencias completas (saida de teste + relatorio HTML do JaCoCo) em [docs/tdd-evidence/](docs/tdd-evidence/):
-
-| Etapa | O que foi feito | Resultado | Evidencia |
-|---|---|---|---|
-| RED | Implementacao com bug proposital (grade >= MINIMUM em vez de >, sem tratar completed/grade nulos) | 2 de 7 testes falham (1 failure + 1 error) | [1-red-test-output.png](docs/tdd-evidence/1-red-test-output.png) |
-| GREEN | Implementacao minima correta (cadeia de ifs) | 7/7 testes passam, mas 1 branch fica amarelo (checagem de grade == null nunca e exercitada, pois e um estado impossivel do dominio) | [2-green-coverage-enrollment.png](docs/tdd-evidence/2-green-coverage-enrollment.png), [relatorio completo](docs/tdd-evidence/2-green-jacoco/com.example.devopsac1.Domain/Enrollment.java.html) |
-| BLUE | Refactor: remove a checagem de nulo redundante (o dominio garante grade != null sempre que completed == true, pois complete() define os dois juntos) | 7/7 testes passam, 100% de instrucoes/linhas/branches cobertos, sem amarelo ou vermelho | [3-blue-coverage-enrollment.png](docs/tdd-evidence/3-blue-coverage-enrollment.png), [relatorio completo](docs/tdd-evidence/3-blue-jacoco/com.example.devopsac1.Domain/Enrollment.java.html) |
-
-Pra reproduzir localmente:
-
-```bash
-cd backend
-./mvnw clean verify
-# relatorio gerado em target/site/jacoco/index.html
-```
-
-## Rodando localmente
-
-Backend:
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-H2 console em `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:file:./data/demodb`, user `sa`, senha em
-branco).
-
-Frontend (em outro terminal, com o backend rodando):
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Abre em `http://localhost:5173`. O Vite faz proxy de `/api/*` para `http://localhost:8080/*` (veja
-`frontend/vite.config.js`), entao o front chama a API real sem precisar de CORS no backend.
-
-## Rodando com Docker
-
-```bash
-docker compose up --build
-```
-
-Antes de subir os containers, copie `.env.example` para `.env` e defina senhas locais para PostgreSQL, pgAdmin e Grafana. `.env` e ignorado pelo Git. O Compose sobe os servicos abaixo:
-
-| Servico | Porta | Descricao |
+| Módulo | API/contrato | Implementação interna |
 |---|---|---|
-| app | 8080 | API Spring Boot (H2 por padrao) |
-| frontend | 8082 | Frontend Vue compilado, servido por Nginx (proxy `/api/*` -> app:8080) |
-| postgres | 5432 | Postgres 16, banco devopsac1 |
-| pgadmin | 5051 | pgAdmin4, com login definido no `.env` |
-| prometheus | 9090 | Metricas da API em `app:8080/actuator/prometheus` |
-| grafana | 3002 | Dashboard A1 provisionado |
+| `curso` | Controller, DTOs, `CourseLookup`/`CourseView` | Entity, repository, service |
+| `aluno` | Controller, DTOs, `StudentLookup`/`StudentView` | Entity, repository, service |
+| `matricula` | Controllers, DTOs, `EligibilityQuery` | Entity, repository, `EnrollmentService` |
+| `shared` | Tratamento de erros HTTP | — |
 
-Com os containers de pe, o app completo (front consumindo a API real) fica em `http://localhost:8082`, sem
-precisar rodar `npm run dev` nem `mvnw spring-boot:run` manualmente - cada camada roda isolada no seu proprio
-container.
+O endpoint de elegibilidade permanece na mesma URL, mas agora pertence ao controller de `matricula`. Assim, `aluno` não depende de `matricula`; `matricula` usa apenas as APIs públicas de `curso` e `aluno`. Os controllers dependem de contratos `Command`/`Query` e os DTOs não importam entidades internas. O teste `ModuleBoundariesTest` impede acesso de controllers a repositories, dependências de `api` a `internal` e dependências de um módulo ao pacote `internal` de outro.
 
-Por padrao a aplicacao usa H2 (arquivo em ./data). Pra rodar contra o Postgres do compose em vez do H2,
-use `docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d --build` com as senhas no `.env` - o Hibernate cria o schema automaticamente no Postgres tambem
-(ddl-auto=update), e execute a migracao idempotente de chaves estrangeiras em `docs/arquitetura/sql/001-ensure-enrollment-fks.sql` (o Jenkins a executa automaticamente).
+### C4 Container
 
-Evidencia real: subimos uma instancia apontada para o Postgres do compose, criamos um curso via
-`POST /courses`, e confirmamos tanto via `psql` quanto via pgAdmin (Databases > devopsac1 > Schemas > public >
-Tables) que as 3 tabelas (course, enrollment, student) foram criadas pelo Hibernate e o registro aparece la -
-ver [docs/postgres-evidence/tables.txt](docs/postgres-evidence/tables.txt).
-
-Evidencias de H2 e Postgres rodando: `docs/tdd-evidence/` (ver secao acima) mostra a suite completa passando
-contra o H2 em memoria; o proprio `docker compose up` sobe o Postgres + pgAdmin lado a lado com o H2 do app.
-
-## API
-
-Documentacao interativa (Swagger UI) em `http://localhost:8080/swagger-ui/index.html`
-(OpenAPI JSON cru em `/v3/api-docs`). Health check do Actuator em `/actuator/health`.
-
-Somente os endpoints realmente consumidos pelo front (`frontend/src/api.js`) foram mantidos - a API nao
-tenta simular um CRUD completo, so o que o fluxo do quiz precisa:
-
-| Metodo | Rota | Descricao |
-|--------|------|-----------|
-| POST   | `/courses` | Cria um curso |
-| POST   | `/students` | Cria um aluno |
-| POST   | `/enrollments` | Matricula um aluno em um curso |
-| POST   | `/enrollments/{id}/complete` | Conclui a matricula com uma nota (0-10) |
-| GET    | `/students/{id}/eligible-for-extra-courses` | Se o aluno tem direito a cursos extra |
-
-Erros seguem um formato unico (status, error, message, timestamp): 404 pra recurso inexistente, 409 pra
-regra de negocio violada (ex: pedir media de matricula nao concluida), 400 pra validacao de request (ex: nota fora
-de 0-10).
-
-## Configuracao
-
-Todas as configs relevantes do backend podem ser sobrescritas por variavel de ambiente - veja
-[.env.example](.env.example). Por padrao (perfil dev, sem SPRING_PROFILES_ACTIVE definido), a aplicacao sobe
-com:
-
-- console do H2 acessivel em /h2-console (login sa, sem senha)
-- log de SQL habilitado
-
-Isso e intencional para desenvolvimento/teste, mas nao e o comportamento desejavel em um deploy real. Para
-desligar o console do H2 e o log de SQL, defina explicitamente:
-
-```bash
-SPRING_PROFILES_ACTIVE=prod
+```mermaid
+flowchart LR
+    U[Usuário] --> F[Frontend Vue / Nginx]
+    F -->|REST / JSON| C[Core Spring Boot\nMonólito Modular]
+    C -->|JPA| DB[(PostgreSQL em HOMOL\nH2 em desenvolvimento)]
+    P -->|coleta /actuator/prometheus| C
+    G[Grafana] -->|consulta métricas| P
 ```
 
-(veja backend/src/main/resources/application-prod.properties). O docker-compose.yml nao ativa esse perfil por
-padrao - e preciso setar a variavel de ambiente manualmente (via .env ou -e no docker run).
+```mermaid
+flowchart LR
+    CC[curso.api] --> CI[curso.internal]
+    AA[aluno.api] --> AI[aluno.internal]
+    MC[matricula.api] --> MI[matricula.internal]
+    MI -->|CourseLookup| CC
+    MI -->|StudentLookup| AA
+    MC -->|StudentLookup| AA
+```
 
-## Testes
+As últimas ligações usam contratos dos pacotes `api`; não apontam para classes `internal` de outro módulo.
 
-```bash
+## Matriz cumulativa de ASRs — Desafio 1
+
+| ASR | Estímulo | Resposta/critério | Evidência atual | Gatilho futuro |
+|---|---|---|---|---|
+| ASR-01 Manutenibilidade | Nova regra de pontuação ou badge | Mudança confinada ao módulo responsável e seu contrato; zero dependências entre módulos internos | Pacotes por capacidade e quatro testes de arquitetura passando | Uma mudança real que exigir vários módulos altera a decisão |
+| ASR-02 Escalabilidade | Crescimento de 1.000 para até 100.000 usuários, com Ranking mais acessado | Fronteira própria para Ranking; medir p95 e throughput sob carga | Fronteiras do Core preparadas; Ranking ainda não implementado, sem baseline | Gargalo medido ou necessidade de escala própria |
+| ASR-03 Complexidade operacional | Equipe do cenário precisa operar o Core | Uma unidade de deploy e uma esteira | Um container `app` e um Jenkinsfile | Necessidade comprovada de deploy independente |
+
+As metas de p95, throughput, CPU e módulos alterados no DOCX são **propostas de validação**, não resultados medidos. A equipe real identificada na AC1 tem três integrantes; o enunciado do desafio considera uma equipe de seis desenvolvedores como restrição do cenário.
+
+## Matriz de rastreabilidade do DOCX
+
+| Requisito / decisão | Implementação | Validação e estado |
+|---|---|---|
+| RF01 Ranking | Fronteira futura registrada na ADR e no C4; nenhuma API de Ranking foi solicitada para o mini-lab da AC1 | Planejado para desafio posterior; medições indisponíveis até existir o endpoint |
+| RF02 Conquistas, badges, moedas e recompensas | Fronteiras futuras na ADR, sem implementação fictícia | Planejado para desafio posterior |
+| Fluxo existente US4 matrícula/conclusão/elegibilidade | `matricula.internal.EnrollmentService`, `EligibilityController`, entidades e contratos `curso.api`/`aluno.api` | Testes de domínio, HTTP e fluxo completo; respostas e rotas preservadas |
+| RNFs e até três ASRs | Matriz cumulativa acima | Manutenibilidade e custo operacional verificados estruturalmente; escalabilidade depende de carga real |
+| RPC Spring Boot e Java | Boot 4.1.1, Java 21 no pom, Dockerfile e CI | `mvn clean verify`, build Docker |
+| RPC banco relacional e legado AC1 | H2 nos testes; PostgreSQL HOMOL; mesmas tabelas e colunas | Testes H2 e validação `ddl-auto=validate` no PostgreSQL existente |
+| Alternativas A/B/C e trade-offs | ADR-001 | Revisão da decisão e dos custos explícitos |
+| Decisão Monólito Modular, um deploy | `curso`, `aluno`, `matricula`, container `app` | ArchUnit e Docker Compose |
+| Mini-lab antes/depois | Antes: 3 controllers com repository; depois: 0; regra de elegibilidade no módulo `matricula` | `ModuleBoundariesTest` e `EnrollmentControllerTest` |
+| ADR + C4 | ADR-001 e diagramas acima | Conferência com código e Compose |
+| Jenkins e observabilidade preservados | Jenkinsfile, Prometheus `app:8080`, datasource e dashboard Grafana | `mvn`, Docker/Cypress, target UP e consulta no Grafana; execução do job depende das credenciais Jenkins abaixo |
+
+**Adaptação técnica:** o DOCX mostra uma estrutura proposta com `Enrollment` ligado a `Course` e `Student`. Os IDs escalares preservam as colunas persistidas e evitam que `matricula.internal` importe entidades internas dos outros módulos. Os nomes de curso e aluno da resposta HTTP vêm de `CourseLookup` e `StudentLookup`.
+
+## Validação reproduzível
+
+Pré-requisitos locais: JDK 21, Docker Desktop com Compose v2+, Git e acesso a Maven Central/NPM. O wrapper Maven fixa a distribuição 3.9.16. Copie `.env.example` para `.env` (ignorado pelo Git) e defina `POSTGRES_PASSWORD`, `PGADMIN_DEFAULT_PASSWORD` e `GRAFANA_ADMIN_PASSWORD`. Em uma instalação existente, mantenha os valores atuais para reutilizar os volumes PostgreSQL/pgAdmin/Grafana. Não coloque senhas em commits ou relatórios.
+
+```powershell
 cd backend
-./mvnw test
+./mvnw.cmd -B clean verify pmd:check
+cd ..
+docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d --build
+# API: http://localhost:8080/actuator/health
+# Prometheus: http://localhost:9090/targets (job jogo-enigma-api, instance app:8080, UP)
+# Grafana: http://localhost:3002
 ```
 
-42 testes nesta revisao: testes de dominio/servico, fronteiras de modulos (JUnit puro, sem Spring) e testes de integracao dos controllers
-(JUnit + MockMvc + banco H2 em memoria, sem mocks de repositorio).
+Para verificar a preservação do esquema em um PostgreSQL já utilizado, suba a nova aplicação em outra porta com `SPRING_JPA_HIBERNATE_DDL_AUTO=validate`. Se o banco for novo, o laboratório continua usando `ddl-auto=update`; o serviço valida IDs antes de gravar. Antes de um ambiente não acadêmico, versionar migrações SQL e substituir `update` por `validate` é recomendado.
+
+### Jenkins
+
+O job Pipeline usa `Pipeline script from SCM`, repositório `dev_ops_ex_A1`, branch desejada e `Jenkinsfile` na raiz. O agente precisa de JDK 21 no `PATH`, Git, Docker Engine/Compose, `curl`, acesso de rede a Maven Central e NPM e permissão para controlar Docker. Plugins: Pipeline, Git, Credentials Binding, JUnit e Coverage. O `Jenkinsfile` usa três credenciais **Secret text** do Jenkins:
+
+| ID no Jenkins | Uso |
+|---|---|
+| `b1-postgres-password` | PostgreSQL e API HOMOL |
+| `b1-pgadmin-password` | pgAdmin |
+| `b1-grafana-admin-password` | Grafana e consulta autenticada na validação |
+
+Defina-as com os mesmos valores dos serviços existentes antes de executar o job sobre os volumes atuais. O pipeline publica JUnit, JaCoCo, PMD e o JAR; falha em teste, fronteira, PMD, build, health, Cypress ou coleta/consulta de métricas e dashboard. O container temporário Cypress é removido com `run --rm`; os serviços de homologação e seus volumes permanecem por serem o ambiente entregue. O `POSTGRES_PASSWORD` não pode mudar sem alterar também a senha do usuário persistida no banco. Para recuperar o deploy anterior, retorne ao commit anterior e execute o Compose com as mesmas credenciais e volumes; antes de qualquer migração de dados, faça backup do PostgreSQL com `pg_dump` e guarde uma cópia dos volumes do Grafana e do Prometheus. A migração `001-ensure-enrollment-fks.sql` só adiciona chaves ausentes e pode ser reaplicada.
+
+O job A2 Freestyle anterior não executa esta cadeia completa; a referência de validação B1 é o Pipeline. O nome Prometheus `jogo-enigma-api` foi mantido para compatibilidade com o dashboard A2, mas seu alvo real é `app:8080` do projeto A1.
+
+## Evidências e limites
+
+Antes do refactor, os três controllers injetavam repositories, e a suíte local tinha 37 testes. Depois, nenhum controller injeta repository; ArchUnit verifica essa propriedade. A execução local desta revisão teve 42 testes aprovados, zero violação PMD, build dos containers e dois cenários Cypress aprovados. O alvo Prometheus ficou `UP`, o Grafana consultou a série `up=1` e o dashboard A1 foi encontrado. Os comandos e limites estão em [evidencias.md](docs/arquitetura/evidencias.md). Não foi executado teste de carga de Ranking, pois o recurso ainda não existe. A execução do job Jenkins desta revisão continua pendente até a configuração das credenciais e o acesso ao navegador; o ADR permanece proposto quanto à validação de escala futura.
+
+## Diagramas C4
+
+O modelo C4 descreve a arquitetura em quatro níveis de zoom: **Context** (o sistema no seu ambiente), **Containers** (as unidades executáveis), **Components** (a estrutura interna de um container) e **Code** (as classes de um componente). Aqui os quatro níveis documentam o Core do B1 conforme a decisão da [ADR-001](docs/arquitetura/ADR-001.md): monólito modular, um único processo Spring Boot e um único deploy.
+
+Os níveis 1 a 3 usam `flowchart` e o nível 4 usa `classDiagram`, ambos renderizados nativamente pelo GitHub.
+
+---
+
+### Nível 1 — Context
+
+**O que mostra:** o sistema como uma caixa única, quem interage com ele e o que ele entrega. Não há detalhes técnicos neste nível; ele serve para alinhar o escopo.
+
+```mermaid
+flowchart LR
+    U["Usuário<br/>Acessa pelo navegador"]
+    E["Equipe de operação<br/>Monitora e faz deploy"]
+    S["Plataforma de gamificação (B1)<br/>Cursos, alunos e matrículas<br/>Ranking e conquistas: futuro"]
+
+    U -->|"usa via HTTPS"| S
+    E -->|"monitora e faz deploy"| S
+
+    classDef pessoa fill:#f1efe8,stroke:#5f5e5a,color:#2c2c2a
+    classDef sistema fill:#eeedfe,stroke:#534ab7,color:#26215c
+    class U,E pessoa
+    class S sistema
+```
+
+| Elemento | Tipo | Responsabilidade |
+|---|---|---|
+| Usuário | Pessoa | Usa a plataforma pelo navegador para gerenciar cursos, alunos e matrículas. |
+| Equipe de operação | Pessoa | Faz o deploy (pipeline Jenkins) e acompanha métricas e dashboards (Prometheus/Grafana). |
+| Plataforma de gamificação (B1) | Sistema | Entrega hoje o fluxo herdado da AC1: cursos, alunos, matrícula, conclusão e elegibilidade para cursos extras. |
+
+**Pontos de atenção**
+
+- Ranking, Conquistas, Moedas e Recompensas são capacidades **futuras** do case B1. Aparecem no diagrama apenas como intenção; não há implementação nem API para elas neste desafio.
+- Não há sistemas externos no escopo atual, então o diagrama não mostra integrações de terceiros.
+
+---
+
+### Nível 2 — Containers
+
+**O que mostra:** as unidades executáveis e de dados que compõem a plataforma, a tecnologia de cada uma e como elas se comunicam.
+
+```mermaid
+flowchart LR
+    U["Usuário"]
+
+    subgraph DC["Docker Compose · HOMOL"]
+        F["Frontend<br/>Vue + Nginx"]
+        C["Core<br/>Spring Boot, monólito modular"]
+        DB[("PostgreSQL<br/>H2 em dev")]
+        P["Prometheus<br/>Coleta métricas"]
+        G["Grafana<br/>Dashboards"]
+    end
+
+    U -->|HTTPS| F
+    F -->|"REST / JSON"| C
+    C -->|JPA| DB
+    P -->|"scrape /actuator/prometheus"| C
+    G -->|consulta| P
+
+    classDef pessoa fill:#f1efe8,stroke:#5f5e5a,color:#2c2c2a
+    classDef app fill:#eeedfe,stroke:#534ab7,color:#26215c
+    classDef dados fill:#e1f5ee,stroke:#0f6e56,color:#04342c
+    class U,P,G pessoa
+    class F,C app
+    class DB dados
+```
+
+| Container | Tecnologia | Responsabilidade |
+|---|---|---|
+| Frontend | Vue + Nginx | Interface web; consome a API do Core por REST/JSON. |
+| Core | Spring Boot (Java 21) | Concentra as regras de negócio em módulos (`curso`, `aluno`, `matricula`). É um único processo e um único deploy. |
+| PostgreSQL | PostgreSQL (HOMOL), H2 (desenvolvimento e testes) | Persistência via JPA. Tabelas `course`, `student` e `enrollment` preservadas, inclusive nomes e tipos de `course_id` e `student_id`. |
+| Prometheus | Prometheus | Coleta métricas do Core em `/actuator/prometheus`. O job se chama `jogo-enigma-api` por compatibilidade com o dashboard A2; o alvo real é `app:8080`. |
+| Grafana | Grafana | Consulta o Prometheus e exibe o dashboard do A1. |
+
+**Decisões e trade-offs (ADR-001)**
+
+- **Um deploy só:** atende o ASR-03 (complexidade operacional): um container `app` e um `Jenkinsfile`. O custo é não poder escalar partes do sistema de forma independente.
+- **Escalabilidade (ASR-02):** as fronteiras internas já preparam um futuro Ranking separado, mas ele ainda não existe e não há baseline de carga. A decisão só muda diante de gargalo medido ou necessidade comprovada de deploy independente.
+- Prometheus e Grafana fazem parte do ambiente de homologação entregue e permanecem após o pipeline.
+
+---
+
+### Nível 3 — Components
+
+**O que mostra:** a estrutura interna do container Core: os módulos por capacidade de negócio, o que cada um expõe (`api`) e o que esconde (`internal`), e quem depende de quem.
+
+```mermaid
+flowchart TB
+    subgraph CORE["Core Spring Boot · um processo, um deploy"]
+        subgraph CURSO["módulo curso"]
+            CA["curso.api<br/>Controller, DTOs, CourseLookup"]
+            CI["curso.internal<br/>Service, Entity, Repository"]
+            CA --> CI
+        end
+
+        subgraph MAT["módulo matricula"]
+            MA["matricula.api<br/>Controllers, DTOs, EligibilityQuery"]
+            MI["matricula.internal<br/>EnrollmentService, Entity, Repository"]
+            MA --> MI
+        end
+
+        subgraph ALUNO["módulo aluno"]
+            AA["aluno.api<br/>Controller, DTOs, StudentLookup"]
+            AI["aluno.internal<br/>Service, Entity, Repository"]
+            AA --> AI
+        end
+
+        SH["shared<br/>Tratamento de erros HTTP"]
+    end
+
+    MI -->|CourseLookup| CA
+    MI -->|StudentLookup| AA
+    MA -->|StudentLookup| AA
+
+    classDef api fill:#e1f5ee,stroke:#0f6e56,color:#04342c
+    classDef internal fill:#f1efe8,stroke:#5f5e5a,color:#2c2c2a
+    class CA,MA,AA api
+    class CI,MI,AI,SH internal
+```
+
+| Módulo | `api` (contrato público) | `internal` (implementação) |
+|---|---|---|
+| `curso` | Controller, DTOs, `CourseLookup` / `CourseView` | Entity, repository, service |
+| `aluno` | Controller, DTOs, `StudentLookup` / `StudentView` | Entity, repository, service |
+| `matricula` | Controllers, DTOs, `EligibilityQuery` | Entity, repository, `EnrollmentService` |
+| `shared` | — | Tratamento de erros HTTP |
+
+**Regras de dependência**
+
+- `matricula` usa apenas as APIs públicas de `curso` e `aluno`. Nenhuma seta aponta para o `internal` de outro módulo.
+- `aluno` **não** depende de `matricula`: o endpoint `GET /students/{id}/eligible-for-extra-courses` mantém a mesma URL, mas agora pertence ao controller de `matricula`.
+- Controllers não acessam repositories e as `api` não importam classes `internal`.
+
+**Evidência (ASR-01, manutenibilidade):** o `ModuleBoundariesTest` (ArchUnit) verifica essas regras automaticamente. Antes do refactor, 3 controllers injetavam repositories; depois, nenhum injeta.
+
+---
+
+### Nível 4 — Code (módulo `matricula`)
+
+**O que mostra:** as classes e interfaces do módulo `matricula`, o ponto onde o Core cruza fronteiras entre módulos. É o único módulo detalhado neste nível porque é ele que concentra as dependências de `curso` e `aluno`.
+
+```mermaid
+classDiagram
+    direction TB
+
+    class EnrollmentController
+    class EligibilityController
+
+    class EnrollmentCommand {
+        <<interface>>
+    }
+    class EligibilityQuery {
+        <<interface>>
+    }
+
+    class EnrollmentService
+    class EnrollmentRepository
+    class Enrollment {
+        courseId
+        studentId
+    }
+
+    class CourseLookup {
+        <<interface>>
+    }
+    class StudentLookup {
+        <<interface>>
+    }
+
+    EnrollmentController ..> EnrollmentCommand : usa
+    EligibilityController ..> EligibilityQuery : usa
+
+    EnrollmentService ..|> EnrollmentCommand
+    EnrollmentService ..|> EligibilityQuery
+
+    EnrollmentService ..> EnrollmentRepository : usa
+    EnrollmentRepository ..> Enrollment : persiste
+    EnrollmentService ..> CourseLookup : valida curso
+    EnrollmentService ..> StudentLookup : valida aluno
+```
+
+| Classe | Camada | Papel |
+|---|---|---|
+| `EnrollmentController` | `matricula.api` | Expõe `POST /enrollments` e `POST /enrollments/{id}/complete`. |
+| `EligibilityController` | `matricula.api` | Expõe `GET /students/{id}/eligible-for-extra-courses`. |
+| `EnrollmentCommand` / `EligibilityQuery` | `matricula.api` | Contratos Command/Query: os controllers dependem deles, não do service. |
+| `EnrollmentService` | `matricula.internal` | Implementa os contratos e concentra a regra de matrícula, conclusão e elegibilidade. |
+| `EnrollmentRepository` | `matricula.internal` | Persistência de `Enrollment`. |
+| `Enrollment` | `matricula.internal` | Guarda `courseId` e `studentId` como IDs, em vez de referenciar as entidades internas de `curso` e `aluno`. |
+| `CourseLookup` / `StudentLookup` | `curso.api` / `aluno.api` | Contratos de consulta usados para validar as referências antes de criar a matrícula e para obter os nomes exibidos na resposta HTTP. |
+
+**Decisões de código**
+
+- Os IDs escalares em `Enrollment` preservam as colunas `course_id` e `student_id` e evitam que `matricula.internal` importe entidades de outros módulos. As chaves estrangeiras continuam no PostgreSQL; a aplicação valida as referências por `CourseLookup` e `StudentLookup`.
+- Não há alteração de payload nem migração destrutiva: o contrato HTTP e as tabelas da AC1 permanecem como estavam.
+- Os fluxos de matrícula, conclusão e elegibilidade são cobertos por testes de domínio, HTTP e fluxo completo (por exemplo, `EnrollmentControllerTest`).
