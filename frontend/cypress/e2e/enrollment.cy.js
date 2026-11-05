@@ -1,21 +1,22 @@
-describe('Educação Continuada Gamificada - E2E', () => {
-  it('abre a home e mostra o curso', () => {
+describe('Área do aluno e cursos', () => {
+  it('lista e filtra os seis cursos do perfil', () => {
     cy.visit('/')
-    cy.contains('h1', 'Educação Continuada Gamificada')
-    cy.contains('Curso não concluído')
+    cy.get('[data-cy=course-card]').should('have.length', 6)
+    cy.get('[data-cy=user-profile]').should('contain', 'Renan')
+    cy.get('[data-cy=course-search]').type('programacao')
+    cy.get('[data-cy=course-card]').should('have.length', 1).and('contain', 'Fundamentos')
+    cy.get('[data-cy=course-search]').clear()
+    cy.contains('button', 'Em andamento').click()
+    cy.get('[data-cy=course-card]').should('have.length', 1)
   })
-
-  it('completa a avaliação com a resposta correta e fica elegível para cursos extras', () => {
+  it('conclui e persiste a avaliação final', () => {
     cy.visit('/')
-
+    cy.contains('button', 'Continuar curso').click()
     cy.contains('button', 'Retomar Avaliação final').click()
-
-    // Opção correta: "7,0" (índice 2 das 4 alternativas)
     cy.get('.quiz-option').eq(2).click()
-
     cy.contains('button', 'Confirmar resposta').click()
-
     cy.contains('Você acertou a pergunta!')
-    cy.contains('Elegível para mais 3 cursos')
+    cy.reload()
+    cy.get('[data-status=completed]').should('have.length', 6)
   })
 })

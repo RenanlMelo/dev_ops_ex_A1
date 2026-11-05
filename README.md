@@ -6,6 +6,12 @@ Atividade de DevOps (BDD + TDD, ou seja, ATDD) - API de matricula em cursos em S
 Vue, implementando o case "Educacao Continuada Gamificada" apresentado em aula.
 
 
+## Entrega da parte 1 Área do aluno e cursos
+
+Branch `codex/b1-parte1-aluno-cursos`. Implementa perfil local persistente, seis cursos (cinco concluídos e um em andamento na inicialização), pesquisa por nome, filtros, resultado e avaliação final. O perfil é demonstrativo, sem autenticação. `app.demo.enabled=false` desativa a inicialização. O frontend usa `/learning-space` e a API da matrícula; os dados não são redefinidos ao recarregar.
+
+Esta entrega não inclui Ranking, moedas, badges ou recompensas. A parte 2 será uma branch baseada nesta entrega. As partes 3 e 4 permanecem na cópia local completa para entrega posterior. A documentação histórica abaixo descreve a base anterior da AC1/B1.
+
 ## B1 — Desafio 1
 
 O Core agora é um Monólito Modular com módulos `curso`, `aluno` e `matricula`, sem alterar as rotas da AC1. A decisão ADR-001, o C4, a matriz de rastreabilidade e os comandos de validação estão em [docs/arquitetura/README.md](docs/arquitetura/README.md). Ranking e gamificação permanecem capacidades futuras do case. A suíte atual executa 42 testes, incluindo as fronteiras de módulos e um fluxo HTTP completo.
