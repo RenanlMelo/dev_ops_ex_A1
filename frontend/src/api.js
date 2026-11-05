@@ -43,7 +43,15 @@ export function getEligibility(studentId) {
   return request(`/students/${studentId}/eligible-for-extra-courses`)
 }
 
+export const listStudents = (search = '') => request(`/students?limit=100&search=${encodeURIComponent(search)}`)
+export const listCourses = () => request('/courses?limit=100')
 export const getLearningSpace = () => request('/learning-space')
-
 export const getRanking = (page = 0) => request(`/ranking?page=${page}&size=5`)
 export const getStudentRanking = id => request(`/ranking/students/${id}`)
+export const getAchievements = id => request(`/students/${id}/achievements`)
+export const getWallet = id => request(`/students/${id}/wallet`)
+export const getRewards = () => request('/rewards')
+export const getRedemptions = id => request(`/students/${id}/redemptions`)
+export const redeemReward = (id, rewardCode, requestId) => request(`/students/${id}/redemptions`, {
+  method: 'POST', body: JSON.stringify({ rewardCode, requestId })
+})

@@ -1,10 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import RankingPanel from './RankingPanel.vue'
 import { completeEnrollment, getEligibility, getLearningSpace } from './api'
+import GamificationPanel from './GamificationPanel.vue'
 
 const workspace = ref(null)
-const revision = ref(0)
 const search = ref('')
 const filter = ref('all')
 const activeId = ref(null)
@@ -14,6 +13,7 @@ const submitting = ref(false)
 const error = ref('')
 const feedback = ref('')
 const eligible = ref(false)
+const revision = ref(0)
 const courses = computed(() => workspace.value?.courses || [])
 const completedCount = computed(() => courses.value.filter(c => c.completed).length)
 const active = computed(() => courses.value.find(c => c.id === activeId.value))
@@ -53,8 +53,8 @@ async function confirmAnswer() {
     await completeEnrollment(active.value.enrollmentId, correct ? 8.5 : 4.5)
     await load()
     eligible.value = (await getEligibility(workspace.value.student.id)).eligibleForExtraCourses
-    revision.value++
     feedback.value = correct ? 'Você acertou a pergunta!' : 'Você errou a pergunta.'
+    revision.value++
   } catch (failure) { error.value = failure.message }
   finally { submitting.value = false }
 }
@@ -88,6 +88,6 @@ onMounted(async () => { try { await load() } catch (failure) { error.value = fai
       </article></div>
       <p v-if="workspace && !visibleCourses.length" class="empty-state">Nenhum curso encontrado. Tente outro nome ou filtro.</p>
     </section>
-    <RankingPanel v-if="workspace" :student-id="workspace.student.id" :revision="revision" />
+    <GamificationPanel v-if="workspace" :student-id="workspace.student.id" :revision="revision" />
   </main>
 </template>

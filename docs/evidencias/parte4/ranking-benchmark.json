@@ -1,0 +1,1 @@
+{"dataset":100000,"requests":160,"concurrency":8,"p95_ms":70.886,"requests_per_second":262.118,"sql_per_page":3,"environment":"MockMvc + JPA + isolated H2, no external HTTP"}

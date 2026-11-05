@@ -46,7 +46,7 @@ class ModuleBoundariesTest {
 
     @Test
     void allModulesRespectEveryOtherModulesInternalBoundary() {
-        String[] modules = {"curso", "aluno", "matricula", "ranking", "conquista", "carteira"};
+        String[] modules = {"curso", "aluno", "matricula", "ranking", "conquista", "carteira", "recompensa"};
         for (String source : modules) {
             for (String target : modules) {
                 if (!source.equals(target)) {
