@@ -6,6 +6,12 @@ Atividade de DevOps (BDD + TDD, ou seja, ATDD) - API de matricula em cursos em S
 Vue, implementando o case "Educacao Continuada Gamificada" apresentado em aula.
 
 
+## Entrega da parte 2 Ranking
+
+Branch `codex/b1-parte2-ranking`, baseada na parte 1. O commit adicional implementa somente Ranking: projeção persistida e indexada, paginação, desempate por ID, posição individual e painel lateral. Pontos = nota × 10; a revisão da nota substitui os pontos. Matrícula atualiza o ranking pela API Scoreboard na mesma transação. O backfill reconstrói os totais das conclusões antigas; `ranking.backfill.enabled=false` o desativa.
+
+Moedas, badges, conquistas e recompensas não estão incluídos. A outra pessoa poderá integrar esses módulos depois pelo contrato Scoreboard, substituindo o atual adaptador EnrollmentRankingUpdater. A versão completa original continua preservada localmente.
+
 ## Entrega da parte 1 Área do aluno e cursos
 
 Branch `codex/b1-parte1-aluno-cursos`. Implementa perfil local persistente, seis cursos (cinco concluídos e um em andamento na inicialização), pesquisa por nome, filtros, resultado e avaliação final. O perfil é demonstrativo, sem autenticação. `app.demo.enabled=false` desativa a inicialização. O frontend usa `/learning-space` e a API da matrícula; os dados não são redefinidos ao recarregar.
