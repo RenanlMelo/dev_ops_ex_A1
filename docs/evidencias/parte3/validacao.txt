@@ -1,0 +1,18 @@
+﻿[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 23.75 s -- in com.example.devopsac1.architecture.ModuleBoundariesTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.189 s -- in com.example.devopsac1.architecture.RankingBoundaryTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.286 s -- in com.example.devopsac1.conquista.internal.GamificationRulesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.99 s -- in com.example.devopsac1.Controller.CourseControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.986 s -- in com.example.devopsac1.Controller.EnrollmentControllerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.177 s -- in com.example.devopsac1.Controller.StudentControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.example.devopsac1.DomainTest.EnrollmentTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.243 s -- in com.example.devopsac1.Exception.GlobalExceptionHandlerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.397 s -- in com.example.devopsac1.gamification.AchievementApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.700 s -- in com.example.devopsac1.gamification.AchievementTransactionTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.108 s -- in com.example.devopsac1.matricula.internal.EnrollmentRulesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.557 s -- in com.example.devopsac1.matricula.internal.LearningSpaceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.239 s -- in com.example.devopsac1.matricula.internal.RankingFlowTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.878 s -- in com.example.devopsac1.performance.RankingCapacityTest
+[INFO] Tests run: 66, Failures: 0, Errors: 0, Skipped: 0
+[INFO] PMD version: 7.7.0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  02:11 min
