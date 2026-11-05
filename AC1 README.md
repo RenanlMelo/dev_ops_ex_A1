@@ -1,0 +1,224 @@
+# dev_ops_ac1
+
+[![CI](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml/badge.svg)](https://github.com/RenanlMelo/dev_ops_ex_A1/actions/workflows/ci.yml)
+
+Atividade de DevOps (BDD + TDD, ou seja, ATDD) - API de matricula em cursos em Spring Boot, com front-end em
+Vue, implementando o case "Educacao Continuada Gamificada" apresentado em aula.
+
+
+## B1 — Desafio 1
+
+O Core agora é um Monólito Modular com módulos `curso`, `aluno` e `matricula`, sem alterar as rotas da AC1. A decisão ADR-001, o C4, a matriz de rastreabilidade e os comandos de validação estão em [docs/arquitetura/README.md](docs/arquitetura/README.md). Ranking e gamificação permanecem capacidades futuras do case. A suíte atual executa 42 testes, incluindo as fronteiras de módulos e um fluxo HTTP completo.
+
+O histórico RED → GREEN → BLUE abaixo registra o trabalho da AC1 antes desta reorganização; os links de relatório JaCoCo nessa seção são evidências históricas.
+
+## Estudo de caso
+
+Plataforma de EAD (Educacao a Distancia) gamificada: o aluno se matricula em um curso, o conclui com uma nota, e
+- se a media final for maior que 7,0 - passa a ter direito a realizar mais 3 cursos extras. Antes do curso ser
+concluido, o aluno nao tem acesso a sua propria media.
+
+### User Story escolhida pelo grupo
+
+US4 - Como aluno, quero que minha media seja calculada ao concluir um curso, para saber se tenho direito a
+cursos extras (o acesso a media so e liberado apos a conclusao do curso).
+
+### BDDs por integrante
+
+Cada integrante do grupo escreveu um cenario BDD (Given/When/Then) para a US4, usando a si mesmo como
+participante de exemplo. Os tres cenarios estao implementados como testes em
+[EnrollmentRulesTest.java](backend/src/test/java/com/example/devopsac1/matricula/internal/EnrollmentRulesTest.java):
+
+| Integrante | BDD |
+|---|---|
+| Kevin | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for acima de 7,0, entao o usuario tem direito a realizacao de mais 3 cursos. |
+| Renan | Dado um curso e um Participante valido, quando o curso for finalizado e a nota for abaixo de 7,0, entao o usuario nao tera direito a realizacao de mais 3 cursos. |
+| Roberto | Dado um curso e um Participante valido, enquanto o curso nao for concluido, entao o usuario nao tera acesso a sua media do curso. |
+
+### RED -> GREEN por integrante (teste de regras da matrícula)
+
+Cada integrante validou seu proprio cenario com o ciclo RED (assercao falhando) -> GREEN (assercao passando),
+rodado via Maven no IntelliJ (`branch-Kevin`). Os cenários permanecem no teste `EnrollmentRulesTest` após a modularização:
+
+| Integrante | Teste (atual: EnrollmentRulesTest) | RED | GREEN |
+|---|---|---|---|
+| Kevin | `kevin_gradeAbove7_isEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return false` -> build falha ([print](docs/tdd-evidence/team/kevin-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/kevin-green.png), [cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)) |
+| Renan | `renan_gradeBelow7_isNotEligibleForExtraCourses` | `isEligibleForExtraCourses()` fixo em `return true` -> build falha ([print](docs/tdd-evidence/team/renan-red.png)) | `isEligibleForExtraCourses()` delega para `enrollment.hasGradeAboveMinimum()` -> `BUILD SUCCESS` ([print](docs/tdd-evidence/team/renan-green.png), [cobertura](docs/tdd-evidence/team/renan-green-coverage.png)) |
+| Roberto | `roberto_courseNotCompleted_hasNoAccessToAverage` | Build falha ([print](docs/tdd-evidence/team/roberto-red.png)) | `BUILD SUCCESS`, relatorio JaCoCo gerado ([print](docs/tdd-evidence/team/roberto-green.png), [cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)) |
+
+**Kevin** - RED:
+
+![Kevin RED](docs/tdd-evidence/team/kevin-red.png)
+
+**Kevin** - GREEN:
+
+![Kevin GREEN](docs/tdd-evidence/team/kevin-green.png)
+
+![Kevin cobertura](docs/tdd-evidence/team/kevin-green-coverage.png)
+
+**Renan** - RED:
+
+![Renan RED](docs/tdd-evidence/team/renan-red.png)
+
+**Renan** - GREEN:
+
+![Renan GREEN](docs/tdd-evidence/team/renan-green.png)
+
+![Renan cobertura](docs/tdd-evidence/team/renan-green-coverage.png)
+
+**Roberto** - RED:
+
+![Roberto RED](docs/tdd-evidence/team/roberto-red.png)
+
+**Roberto** - GREEN:
+
+![Roberto GREEN](docs/tdd-evidence/team/roberto-green.png)
+
+![Roberto cobertura](docs/tdd-evidence/team/roberto-green-coverage.png)
+
+## Estrutura do repositorio
+
+```
+backend/    API Spring Boot (Java 21, JPA, H2, Postgres)
+frontend/   SPA Vue 3 + Vite que consome a API
+docs/tdd-evidence/   Evidencias do ciclo RED-GREEN-BLUE (prints + relatorios JaCoCo)
+```
+
+Dentro do backend, o codigo atual segue capacidades de negocio:
+
+```
+curso/api, curso/internal          Curso, contrato de consulta e persistencia
+aluno/api, aluno/internal          Aluno, contrato de consulta e persistencia
+matricula/api, matricula/internal  Matricula, elegibilidade e regras de conclusao
+shared/                            Tratamento centralizado de erros
+Config/                            Swagger/OpenAPI
+```
+
+O teste `ModuleBoundariesTest` verifica que controllers nao acessam repositories e que modulos so dependem de contratos publicos de outros modulos. A estrutura anterior por camadas e seus prints permanecem documentados nas evidencias da AC1.
+
+## TDD: ciclo RED -> GREEN -> BLUE
+
+Aplicado em [Enrollment.hasGradeAboveMinimum()](backend/src/main/java/com/example/devopsac1/matricula/internal/Enrollment.java),
+testado diretamente por
+[EnrollmentTest](backend/src/test/java/com/example/devopsac1/DomainTest/EnrollmentTest.java) (pacote DomainTest, teste de dominio, no
+mesmo estilo do exercicio da calculadora - sem passar por Spring, so instancia a classe e chama o metodo).
+Evidencias completas (saida de teste + relatorio HTML do JaCoCo) em [docs/tdd-evidence/](docs/tdd-evidence/):
+
+| Etapa | O que foi feito | Resultado | Evidencia |
+|---|---|---|---|
+| RED | Implementacao com bug proposital (grade >= MINIMUM em vez de >, sem tratar completed/grade nulos) | 2 de 7 testes falham (1 failure + 1 error) | [1-red-test-output.png](docs/tdd-evidence/1-red-test-output.png) |
+| GREEN | Implementacao minima correta (cadeia de ifs) | 7/7 testes passam, mas 1 branch fica amarelo (checagem de grade == null nunca e exercitada, pois e um estado impossivel do dominio) | [2-green-coverage-enrollment.png](docs/tdd-evidence/2-green-coverage-enrollment.png), [relatorio completo](docs/tdd-evidence/2-green-jacoco/com.example.devopsac1.Domain/Enrollment.java.html) |
+| BLUE | Refactor: remove a checagem de nulo redundante (o dominio garante grade != null sempre que completed == true, pois complete() define os dois juntos) | 7/7 testes passam, 100% de instrucoes/linhas/branches cobertos, sem amarelo ou vermelho | [3-blue-coverage-enrollment.png](docs/tdd-evidence/3-blue-coverage-enrollment.png), [relatorio completo](docs/tdd-evidence/3-blue-jacoco/com.example.devopsac1.Domain/Enrollment.java.html) |
+
+Pra reproduzir localmente:
+
+```bash
+cd backend
+./mvnw clean verify
+# relatorio gerado em target/site/jacoco/index.html
+```
+
+## Rodando localmente
+
+Backend:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+H2 console em `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:file:./data/demodb`, user `sa`, senha em
+branco).
+
+Frontend (em outro terminal, com o backend rodando):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre em `http://localhost:5173`. O Vite faz proxy de `/api/*` para `http://localhost:8080/*` (veja
+`frontend/vite.config.js`), entao o front chama a API real sem precisar de CORS no backend.
+
+## Rodando com Docker
+
+```bash
+docker compose up --build
+```
+
+Antes de subir os containers, copie `.env.example` para `.env` e defina senhas locais para PostgreSQL, pgAdmin e Grafana. `.env` e ignorado pelo Git. O Compose sobe os servicos abaixo:
+
+| Servico | Porta | Descricao |
+|---|---|---|
+| app | 8080 | API Spring Boot (H2 por padrao) |
+| frontend | 8082 | Frontend Vue compilado, servido por Nginx (proxy `/api/*` -> app:8080) |
+| postgres | 5432 | Postgres 16, banco devopsac1 |
+| pgadmin | 5051 | pgAdmin4, com login definido no `.env` |
+| prometheus | 9090 | Metricas da API em `app:8080/actuator/prometheus` |
+| grafana | 3002 | Dashboard A1 provisionado |
+
+Com os containers de pe, o app completo (front consumindo a API real) fica em `http://localhost:8082`, sem
+precisar rodar `npm run dev` nem `mvnw spring-boot:run` manualmente - cada camada roda isolada no seu proprio
+container.
+
+Por padrao a aplicacao usa H2 (arquivo em ./data). Pra rodar contra o Postgres do compose em vez do H2,
+use `docker compose -f docker-compose.yml -f docker-compose.homol.yml up -d --build` com as senhas no `.env` - o Hibernate cria o schema automaticamente no Postgres tambem
+(ddl-auto=update), e execute a migracao idempotente de chaves estrangeiras em `docs/arquitetura/sql/001-ensure-enrollment-fks.sql` (o Jenkins a executa automaticamente).
+
+Evidencia real: subimos uma instancia apontada para o Postgres do compose, criamos um curso via
+`POST /courses`, e confirmamos tanto via `psql` quanto via pgAdmin (Databases > devopsac1 > Schemas > public >
+Tables) que as 3 tabelas (course, enrollment, student) foram criadas pelo Hibernate e o registro aparece la -
+ver [docs/postgres-evidence/tables.txt](docs/postgres-evidence/tables.txt).
+
+Evidencias de H2 e Postgres rodando: `docs/tdd-evidence/` (ver secao acima) mostra a suite completa passando
+contra o H2 em memoria; o proprio `docker compose up` sobe o Postgres + pgAdmin lado a lado com o H2 do app.
+
+## API
+
+Documentacao interativa (Swagger UI) em `http://localhost:8080/swagger-ui/index.html`
+(OpenAPI JSON cru em `/v3/api-docs`). Health check do Actuator em `/actuator/health`.
+
+Somente os endpoints realmente consumidos pelo front (`frontend/src/api.js`) foram mantidos - a API nao
+tenta simular um CRUD completo, so o que o fluxo do quiz precisa:
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| POST   | `/courses` | Cria um curso |
+| POST   | `/students` | Cria um aluno |
+| POST   | `/enrollments` | Matricula um aluno em um curso |
+| POST   | `/enrollments/{id}/complete` | Conclui a matricula com uma nota (0-10) |
+| GET    | `/students/{id}/eligible-for-extra-courses` | Se o aluno tem direito a cursos extra |
+
+Erros seguem um formato unico (status, error, message, timestamp): 404 pra recurso inexistente, 409 pra
+regra de negocio violada (ex: pedir media de matricula nao concluida), 400 pra validacao de request (ex: nota fora
+de 0-10).
+
+## Configuracao
+
+Todas as configs relevantes do backend podem ser sobrescritas por variavel de ambiente - veja
+[.env.example](.env.example). Por padrao (perfil dev, sem SPRING_PROFILES_ACTIVE definido), a aplicacao sobe
+com:
+
+- console do H2 acessivel em /h2-console (login sa, sem senha)
+- log de SQL habilitado
+
+Isso e intencional para desenvolvimento/teste, mas nao e o comportamento desejavel em um deploy real. Para
+desligar o console do H2 e o log de SQL, defina explicitamente:
+
+```bash
+SPRING_PROFILES_ACTIVE=prod
+```
+
+(veja backend/src/main/resources/application-prod.properties). O docker-compose.yml nao ativa esse perfil por
+padrao - e preciso setar a variavel de ambiente manualmente (via .env ou -e no docker run).
+
+## Testes
+
+```bash
+cd backend
+./mvnw test
+```
+
+42 testes nesta revisao: testes de dominio/servico, fronteiras de modulos (JUnit puro, sem Spring) e testes de integracao dos controllers
+(JUnit + MockMvc + banco H2 em memoria, sem mocks de repositorio).
