@@ -42,3 +42,5 @@ export function completeEnrollment(enrollmentId, grade) {
 export function getEligibility(studentId) {
   return request(`/students/${studentId}/eligible-for-extra-courses`)
 }
+
+export const getLearningSpace = () => request('/learning-space')
